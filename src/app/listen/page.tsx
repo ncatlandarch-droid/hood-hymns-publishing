@@ -1,8 +1,7 @@
 "use client";
 
 import { useI18n } from "@/context/I18nContext";
-import NarrativePlayer from "@/components/ui/NarrativePlayer";
-import CinematicTrailer from "@/components/ui/CinematicTrailer";
+import CinematicNarrative from "@/components/ui/CinematicNarrative";
 import BookExcerpt from "@/components/ui/BookExcerpt";
 import { narratives, excerpts } from "@/data/content";
 
@@ -11,7 +10,7 @@ export default function ListenPage() {
 
   return (
     <div style={{ paddingTop: "100px", paddingBottom: "80px" }}>
-      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "0 24px" }}>
+      <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "0 24px" }}>
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "60px" }}>
           <p
@@ -24,7 +23,7 @@ export default function ListenPage() {
               fontWeight: 700,
             }}
           >
-            {t.watchListen}
+            Cinematic Narratives
           </p>
           <h1
             style={{
@@ -34,42 +33,30 @@ export default function ListenPage() {
               marginBottom: "16px",
             }}
           >
-            {t.listenTitle}
+            Experience the <span className="text-gradient-copper">Stories</span>
           </h1>
           <p style={{ fontSize: "1rem", color: "var(--color-brand-muted)", maxWidth: "600px", margin: "0 auto" }}>
-            {t.listenSubtitle}
+            Press play and immerse yourself. Each story comes alive through narration and cinematic imagery.
           </p>
           <div className="copper-divider" style={{ marginTop: "24px" }} />
         </div>
 
-        {/* Narratives + Trailers + Excerpts */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "48px" }}>
+        {/* Combined cinematic narratives */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "64px" }}>
           {narratives.map((narrative) => {
             const excerpt = excerpts.find((e) => e.seriesId === narrative.seriesId);
             return (
               <div key={narrative.id} style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                {/* Series divider */}
-                <div style={{ textAlign: "center" }}>
-                  <p
-                    style={{
-                      fontSize: "0.7rem",
-                      letterSpacing: "0.2em",
-                      textTransform: "uppercase",
-                      color: narrative.accentColor,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {narrative.seriesName}
-                  </p>
-                </div>
+                {/* Unified cinematic player */}
+                <CinematicNarrative
+                  title={narrative.title}
+                  subtitle={`By C.D. Howell · ${narrative.seriesName}`}
+                  audioSrc={narrative.audioSrc || ""}
+                  scenes={narrative.trailerScenes || []}
+                  accentColor={narrative.accentColor}
+                />
 
-                {/* Player */}
-                <NarrativePlayer narrative={narrative} />
-
-                {/* Cinematic Trailer */}
-                <CinematicTrailer narrative={narrative} />
-
-                {/* Excerpt */}
+                {/* Excerpt teaser below */}
                 {excerpt && <BookExcerpt excerpt={excerpt} />}
               </div>
             );

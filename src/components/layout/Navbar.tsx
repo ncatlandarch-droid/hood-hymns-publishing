@@ -10,9 +10,8 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const links = [
-    { href: "/listen", label: t.watchListen },
+    { href: "/listen", label: "Experience" },
     { href: "/store", label: t.store },
-    { href: "/films", label: t.films },
     { href: "/about", label: t.about },
     { href: "/content", label: t.content },
   ];

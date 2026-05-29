@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+@theme {
+  /* Hood Hymns Publishing — Dark Royal Purple & Copper */
+  --color-brand-primary: #2D1B69;
+  --color-brand-primary-dark: #1A1040;
+  --color-brand-primary-glow: #5B3DB8;
+  --color-brand-copper: #B87333;
+  --color-brand-copper-dark: #8C5A28;
+  --color-brand-copper-glow: #D4944A;
+  --color-brand-black: #08050F;
+  --color-brand-surface: #0E0A1A;
+  --color-brand-card: #140E24;
+  --color-brand-border: #261840;
+  --color-brand-text: #F0EDE8;
+  --color-brand-muted: #9088A8;
+  --color-brand-accent: #B87333;
+
+  --font-cinematic: 'Inter', 'Helvetica Neue', sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+}
+
+/* Base */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-brand-black);
+  color: var(--color-brand-text);
+  font-family: var(--font-cinematic);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection — copper */
+::selection {
+  background: rgba(184, 115, 51, 0.3);
+  color: #fff;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-brand-black); }
+::-webkit-scrollbar-thumb { background: var(--color-brand-border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-copper); }
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(184, 115, 51, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(184, 115, 51, 0.6); }
+}
+
+@keyframes flickerNeon {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.7; }
+  94% { opacity: 1; }
+  97% { opacity: 0.8; }
+  98% { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* ── Ken Burns cinematic pan/zoom animations ── */
+@keyframes kbPanRight {
+  0%   { transform: scale(1.12) translateX(-3%); }
+  100% { transform: scale(1.05) translateX(3%); }
+}
+@keyframes kbPanLeft {
+  0%   { transform: scale(1.12) translateX(3%); }
+  100% { transform: scale(1.05) translateX(-3%); }
+}
+@keyframes kbZoomIn {
+  0%   { transform: scale(1.0); }
+  100% { transform: scale(1.14); }
+}
+@keyframes kbPanUp {
+  0%   { transform: scale(1.12) translateY(3%); }
+  100% { transform: scale(1.05) translateY(-3%); }
+}
+@keyframes trailerProgress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+.kb-pan-right  { animation: kbPanRight  5200ms ease-in-out forwards; }
+.kb-pan-left   { animation: kbPanLeft   5200ms ease-in-out forwards; }
+.kb-zoom-in    { animation: kbZoomIn    5200ms ease-in-out forwards; }
+.kb-pan-up     { animation: kbPanUp     5200ms ease-in-out forwards; }
+
+
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+.fade-in-up-delay-1 { animation-delay: 0.15s; }
+.fade-in-up-delay-2 { animation-delay: 0.3s; }
+.fade-in-up-delay-3 { animation-delay: 0.45s; }
+.fade-in-up-delay-4 { animation-delay: 0.6s; }
+
+/* Brutalist Button — Copper accent */
+.btn-brand {
+  background: var(--color-brand-copper);
+  color: white;
+  padding: 16px 32px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  border: 2px solid var(--color-brand-copper);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-brand:hover {
+  background: white;
+  color: var(--color-brand-copper-dark);
+  border-color: white;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-brand-text);
+  padding: 16px 32px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--color-brand-border);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-ghost:hover {
+  border-color: white;
+  color: var(--color-brand-black);
+  background: white;
+}
+
+/* Brutalist Card */
+.brutalist-card {
+  background: var(--color-brand-black);
+  border: 1px solid var(--color-brand-border);
+  transition: all 0.3s ease;
+}
+
+.brutalist-card:hover {
+  border-color: var(--color-brand-copper);
+}
+
+/* Copper divider */
+.copper-divider {
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--color-brand-copper), transparent);
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+/* Text gradient — copper */
+.text-gradient-copper {
+  background: linear-gradient(135deg, var(--color-brand-copper-glow), var(--color-brand-copper));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Text gradient — steel blue */
+.text-gradient-blue {
+  background: linear-gradient(135deg, var(--color-brand-primary-glow), var(--color-brand-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Film poster hover effect */
+.film-poster {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  aspect-ratio: 2/3;
+}
+
+.film-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease, filter 0.6s ease;
+}
+
+.film-poster:hover img {
+  transform: scale(1.08);
+  filter: brightness(0.7);
+}
+
+.film-poster::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(8, 5, 15, 0.95) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Section spacing */
+.section-gap {
+  padding: 120px 0;
+}
+
+/* Noise texture overlay */
+.noise-overlay::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}

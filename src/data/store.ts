@@ -81,6 +81,7 @@ export const products: Product[] = [
     image: "/merch-character.png",
     description: `Premium vintage-wash black t-shirt. Original character graphic of a young trombonist from the novel — screen-printed in copper & royal purple. Runs true to size. Official ${AUTHOR} merchandise.`,
     collection: "The Harmonies of Hope",
+    paymentLink: "https://buy.stripe.com/4gM4gAa0YaxU6OVd769MY0j",
   },
   // PRODIGAL BLOCK
   {
@@ -110,6 +111,7 @@ export const products: Product[] = [
     image: "/merch-hoodie.png",
     description: `Heavyweight 400g deep purple hoodie. Embroidered Hood Hymns Publishing logo in copper on chest. Reinforced cuffs and hem. Limited production run.`,
     collection: "Studio Merch",
+    paymentLink: "https://buy.stripe.com/5kQ3cw8WUgWiflr7MM9MY0g",
   },
   {
     id: "core-tshirt",
@@ -119,6 +121,7 @@ export const products: Product[] = [
     image: "/merch-tshirt.png",
     description: `Premium 100% cotton heavyweight black tee. Official Hood Hymns Publishing studio mark in white & copper. Oversized cut. Pre-washed and pre-shrunk.`,
     collection: "Studio Merch",
+    paymentLink: "https://buy.stripe.com/14AdRa0qo49w1uB7MM9MY0h",
   },
   {
     id: "core-snapback",
@@ -128,6 +131,7 @@ export const products: Product[] = [
     image: "/merch-snapback.png",
     description: `Structured 6-panel snapback in all black. Embroidered HH monogram in copper on front. Flat brim, adjustable snap closure. One size fits most.`,
     collection: "Studio Merch",
+    paymentLink: "https://buy.stripe.com/6oUcN66OMbBY8X35EE9MY0i",
   },
   // BLOCK TO BLESSING
   {
@@ -138,6 +142,7 @@ export const products: Product[] = [
     image: "/b2b-hoodie.png",
     description: `Heavyweight 400g black hoodie with bold copper 'BLOCK TO BLESSING' across the chest. Cross emblem detail. Reinforced cuffs and hem. Oversized streetwear fit. Limited drop.`,
     collection: "Block to Blessing",
+    paymentLink: "https://buy.stripe.com/5kQaEY3CA0Xkgpv8QQ9MY0k",
   },
   {
     id: "b2b-tee",
@@ -147,6 +152,7 @@ export const products: Product[] = [
     image: "/b2b-tee.png",
     description: `Premium heavyweight black tee featuring the B2B circular badge — copper logo with cross detail. 100% cotton. Pre-washed. Runs true to size. Official Block to Blessing.`,
     collection: "Block to Blessing",
+    paymentLink: "https://buy.stripe.com/bJe5kE1useOa5KR4AA9MY0l",
   },
   {
     id: "b2b-cap",
@@ -156,6 +162,7 @@ export const products: Product[] = [
     image: "/b2b-cap.png",
     description: `Structured 6-panel snapback in deep purple. Copper embroidered B2B interlock monogram on front panel. Flat brim, adjustable snap closure. One size fits most.`,
     collection: "Block to Blessing",
+    paymentLink: "https://buy.stripe.com/3cI7sM1us9tQ4GNc329MY0m",
   },
   {
     id: "b2b-crewneck",
@@ -165,6 +172,7 @@ export const products: Product[] = [
     image: "/b2b-crewneck.png",
     description: `Premium 380g black crewneck sweatshirt with subtle embroidered copper B2B interlock on the left chest. Minimal, clean, built to layer. Ribbed cuffs and waistband.`,
     collection: "Block to Blessing",
+    paymentLink: "https://buy.stripe.com/6oU7sMa0Y0Xk2yF1oo9MY0n",
   },
   {
     id: "b2b-joggers",
@@ -183,5 +191,6 @@ export const products: Product[] = [
     image: "/merch-detroit.png",
     description: `Premium black tee with artistic Detroit skyline and choir silhouette design in purple & copper. 'DETROIT • HOOD HYMNS' text. Urban faith meets streetwear. Official B2B.`,
     collection: "Block to Blessing",
+    paymentLink: "https://buy.stripe.com/00w6oI1us49wddj8QQ9MY0o",
   },
 ];

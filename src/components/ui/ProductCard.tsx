@@ -10,6 +10,7 @@ export interface Product {
   image: string;
   description: string;
   collection: string;
+  paymentLink?: string;
 }
 
 interface ProductCardProps {
@@ -29,6 +30,12 @@ export default function ProductCard({
   async function handleCheckout() {
     if (loading || isComingSoon) return;
     setLoading(true);
+
+    // Use direct Stripe payment link if available
+    if (product.paymentLink) {
+      window.location.href = product.paymentLink;
+      return;
+    }
 
     try {
       const res = await fetch("/api/checkout", {

@@ -50,8 +50,12 @@ export default function ProductCard({
 
       window.location.href = data.url;
     } catch (err: unknown) {
-      const message =
+      const raw =
         err instanceof Error ? err.message : "Something went wrong.";
+      // Hide config errors from end users
+      const message = raw.includes("STRIPE") || raw.includes("configured")
+        ? "Store coming soon! Check back shortly."
+        : raw;
       alert(message);
       setLoading(false);
     }

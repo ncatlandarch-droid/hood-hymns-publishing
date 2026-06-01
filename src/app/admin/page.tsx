@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 
-const ADMIN_PASSWORD = "BrothersWin";
+// Password checked client-side for simplicity; move to API route for production hardening
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "BrothersWin";
 
 export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);

@@ -155,6 +155,19 @@ export interface UIStrings {
   // Content
   contentTitle: string;
   contentSubtitle: string;
+  // Content Hub clips
+  clipTitle1: string;
+  clipTitle2: string;
+  clipTitle3: string;
+  clipTitle4: string;
+  clipTitle5: string;
+  clipTitle6: string;
+  clipCatBehindScenes: string;
+  clipCatOnLocation: string;
+  clipCatAuthorTalk: string;
+  clipCatWritingProcess: string;
+  clipCatBrand: string;
+  clipCatStudio: string;
   // Footer
   footerTagline: string;
   footerLinks: string;
@@ -373,6 +386,19 @@ export const translations: Record<Locale, UIStrings> = {
     // Content
     contentTitle: "Content Hub",
     contentSubtitle: "Shorts, clips, and behind-the-scenes content from the Hood Hymns universe.",
+    // Content Hub clips — EN
+    clipTitle1: "The Two-Family Flat — Behind the Story",
+    clipTitle2: "Detroit Streets: Filming Locations",
+    clipTitle3: "Faith & Music — Author's Reflection",
+    clipTitle4: "Writing The Harmonies of Hope — Process",
+    clipTitle5: "Block to Blessing — Brand Story",
+    clipTitle6: "Hood Hymns Studio Tour",
+    clipCatBehindScenes: "Behind the Scenes",
+    clipCatOnLocation: "On Location",
+    clipCatAuthorTalk: "Author Talk",
+    clipCatWritingProcess: "Writing Process",
+    clipCatBrand: "Brand",
+    clipCatStudio: "Studio",
     // Footer
     footerTagline: "Hood Hymns — Positive stories rooted in the streets.",
     footerLinks: "Store · Watch & Listen · About · Free Chapter",
@@ -590,6 +616,19 @@ export const translations: Record<Locale, UIStrings> = {
     // Content
     contentTitle: "Centro de Contenido",
     contentSubtitle: "Shorts, clips y contenido detrás de cámaras del universo Hood Hymns.",
+    // Content Hub clips — ES
+    clipTitle1: "La Casa de Dos Familias — Detrás de la Historia",
+    clipTitle2: "Las Calles de Detroit: Lugares de Filmación",
+    clipTitle3: "Fe y Música — Reflexión del Autor",
+    clipTitle4: "Escribiendo Las Armonías de la Esperanza — Proceso",
+    clipTitle5: "Del Barrio a la Bendición — Historia de Marca",
+    clipTitle6: "Tour del Estudio Hood Hymns",
+    clipCatBehindScenes: "Detrás de Cámaras",
+    clipCatOnLocation: "En Locación",
+    clipCatAuthorTalk: "Charla del Autor",
+    clipCatWritingProcess: "Proceso de Escritura",
+    clipCatBrand: "Marca",
+    clipCatStudio: "Estudio",
     // Footer
     footerTagline: "Hood Hymns — Historias positivas arraigadas en las calles.",
     footerLinks: "Tienda · Ver y Escuchar · El Autor · Capítulo Gratis",
@@ -807,6 +846,19 @@ export const translations: Record<Locale, UIStrings> = {
     // Content
     contentTitle: "内容中心",
     contentSubtitle: "Hood Hymns宇宙的短片、剪辑和幕后内容。",
+    // Content Hub clips — ZH
+    clipTitle1: "两户公寓——故事背后",
+    clipTitle2: "底特律街头：拍摄地点",
+    clipTitle3: "信仰与音乐——作者感悟",
+    clipTitle4: "创作《希望的和声》——写作过程",
+    clipTitle5: "从街区到祝福——品牌故事",
+    clipTitle6: "Hood Hymns录音室参观",
+    clipCatBehindScenes: "幕后花絮",
+    clipCatOnLocation: "实地拍摄",
+    clipCatAuthorTalk: "作者访谈",
+    clipCatWritingProcess: "写作过程",
+    clipCatBrand: "品牌",
+    clipCatStudio: "录音室",
     // Footer
     footerTagline: "Hood Hymns — 植根于街头的积极故事。",
     footerLinks: "商店 · 观看与聆听 · 关于作者 · 免费章节",

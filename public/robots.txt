@@ -1,6 +1,4 @@
-# Hood Hymns Publishing — robots.txt
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://hood-hymns-publishing.netlify.app/sitemap.xml
+Sitemap: https://hood-hymns-publishing.netlify.app/api/sitemap

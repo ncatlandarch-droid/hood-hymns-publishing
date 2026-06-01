@@ -266,6 +266,11 @@ export interface UIStrings {
   digitalDownload: string;
   instantDownload: string;
   digitalEdition: string;
+  // Audiobook
+  audiobook: string;
+  listenToAudiobook: string;
+  chapter: string;
+  autoAdvance: string;
 }
 
 export const translations: Record<Locale, UIStrings> = {
@@ -479,6 +484,11 @@ export const translations: Record<Locale, UIStrings> = {
     digitalDownload: "Digital Download",
     instantDownload: "Instant Download",
     digitalEdition: "Digital Edition",
+    // Audiobook
+    audiobook: "Audiobook",
+    listenToAudiobook: "Listen to the Audiobook",
+    chapter: "Chapter",
+    autoAdvance: "Auto-Advance",
   },
 
   es: {
@@ -691,6 +701,11 @@ export const translations: Record<Locale, UIStrings> = {
     digitalDownload: "Descarga Digital",
     instantDownload: "Descarga Instantánea",
     digitalEdition: "Edición Digital",
+    // Audiobook
+    audiobook: "Audiolibro",
+    listenToAudiobook: "Escuchar el Audiolibro",
+    chapter: "Capítulo",
+    autoAdvance: "Avance Automático",
   },
 
   zh: {
@@ -903,6 +918,11 @@ export const translations: Record<Locale, UIStrings> = {
     digitalDownload: "数字下载",
     instantDownload: "即时下载",
     digitalEdition: "数字版",
+    // Audiobook
+    audiobook: "有声书",
+    listenToAudiobook: "聆听有声书",
+    chapter: "章节",
+    autoAdvance: "自动播放",
   },
 };
 

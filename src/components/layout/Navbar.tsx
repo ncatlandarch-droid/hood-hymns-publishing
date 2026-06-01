@@ -13,6 +13,7 @@ export default function Navbar() {
     { href: "/listen", label: t.experience },
     { href: "/store", label: t.store },
     { href: "/about", label: t.about },
+    { href: "/audiobook", label: `🎧 ${t.audiobook}` },
     { href: "/content", label: t.content },
   ];
 

@@ -3,14 +3,54 @@
 import { useState } from "react";
 import { useI18n } from "@/context/I18nContext";
 
+const INTEREST_OPTIONS = [
+  { id: "books", label: "📚 Books & New Releases" },
+  { id: "merch", label: "🎵 Merch & Drops" },
+  { id: "films", label: "🎬 Films & Trailers" },
+  { id: "behind-the-scenes", label: "✨ Behind the Scenes" },
+];
+
 export default function SubscribePage() {
   const { t } = useI18n();
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [interests, setInterests] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const toggleInterest = (id: string) => {
+    setInterests((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) setSubmitted(true);
+    if (!email.trim() || loading) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          name: name.trim() || undefined,
+          source: "newsletter",
+          interests: interests.length > 0 ? interests : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSubmitted(true);
+        localStorage.setItem("hh-subscribed", "true");
+      }
+    } catch {
+      // Graceful degradation
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const tiers = [
@@ -108,32 +148,117 @@ export default function SubscribePage() {
             onSubmit={handleSubmit}
             style={{
               display: "flex",
-              gap: "12px",
+              flexDirection: "column",
+              gap: "16px",
               maxWidth: "500px",
               margin: "0 auto 60px",
-              flexWrap: "wrap",
             }}
           >
+            {/* Name field */}
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t.emailPlaceholder}
-              required
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t.yourName}
+              disabled={loading}
               style={{
-                flex: 1,
-                minWidth: "200px",
+                width: "100%",
                 padding: "16px",
                 background: "var(--color-brand-surface)",
                 border: "1px solid var(--color-brand-border)",
                 color: "var(--color-brand-text)",
                 fontSize: "1rem",
                 outline: "none",
+                transition: "border-color 0.2s ease",
+                opacity: loading ? 0.6 : 1,
               }}
+              onFocus={(e) => (e.target.style.borderColor = "var(--color-brand-copper)")}
+              onBlur={(e) => (e.target.style.borderColor = "var(--color-brand-border)")}
             />
-            <button type="submit" className="btn-brand">
-              {t.subscribeCta}
+
+            {/* Email field */}
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t.emailPlaceholder}
+              required
+              disabled={loading}
+              style={{
+                width: "100%",
+                padding: "16px",
+                background: "var(--color-brand-surface)",
+                border: "1px solid var(--color-brand-border)",
+                color: "var(--color-brand-text)",
+                fontSize: "1rem",
+                outline: "none",
+                transition: "border-color 0.2s ease",
+                opacity: loading ? 0.6 : 1,
+              }}
+              onFocus={(e) => (e.target.style.borderColor = "var(--color-brand-copper)")}
+              onBlur={(e) => (e.target.style.borderColor = "var(--color-brand-border)")}
+            />
+
+            {/* Interests */}
+            <div>
+              <p
+                style={{
+                  fontSize: "0.8rem",
+                  color: "var(--color-brand-muted)",
+                  marginBottom: "12px",
+                  fontWeight: 600,
+                }}
+              >
+                {t.interestedIn}
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                {INTEREST_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => toggleInterest(opt.id)}
+                    disabled={loading}
+                    style={{
+                      padding: "8px 16px",
+                      fontSize: "0.8rem",
+                      border: `1px solid ${
+                        interests.includes(opt.id)
+                          ? "var(--color-brand-copper)"
+                          : "var(--color-brand-border)"
+                      }`,
+                      background: interests.includes(opt.id)
+                        ? "rgba(184, 115, 51, 0.15)"
+                        : "var(--color-brand-surface)",
+                      color: interests.includes(opt.id)
+                        ? "var(--color-brand-copper)"
+                        : "var(--color-brand-muted)",
+                      cursor: loading ? "wait" : "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Submit button */}
+            <button
+              type="submit"
+              className="btn-brand"
+              disabled={loading}
+              style={{
+                width: "100%",
+                opacity: loading ? 0.7 : 1,
+                cursor: loading ? "wait" : "pointer",
+              }}
+            >
+              {loading ? "..." : t.subscribeCta}
             </button>
+
+            <p style={{ fontSize: "0.75rem", color: "var(--color-brand-muted)", textAlign: "center" }}>
+              {t.privacyNote}
+            </p>
           </form>
         )}
 

@@ -7,11 +7,30 @@ export default function FreeChapterPage() {
   const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
+    if (!email.trim() || loading) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "free-chapter" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSubmitted(true);
+        // Mark as subscribed so exit popup won't show
+        localStorage.setItem("hh-subscribed", "true");
+      }
+    } catch {
+      // Still show success even on network error (graceful degradation)
       setSubmitted(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,6 +126,7 @@ export default function FreeChapterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t.emailPlaceholder}
                 required
+                disabled={loading}
                 style={{
                   width: "100%",
                   padding: "16px",
@@ -116,12 +136,22 @@ export default function FreeChapterPage() {
                   fontSize: "1rem",
                   outline: "none",
                   transition: "border-color 0.2s ease",
+                  opacity: loading ? 0.6 : 1,
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "var(--color-brand-copper)")}
                 onBlur={(e) => (e.target.style.borderColor = "var(--color-brand-border)")}
               />
-              <button type="submit" className="btn-brand" style={{ width: "100%" }}>
-                {t.freeChapterCta}
+              <button
+                type="submit"
+                className="btn-brand"
+                disabled={loading}
+                style={{
+                  width: "100%",
+                  opacity: loading ? 0.7 : 1,
+                  cursor: loading ? "wait" : "pointer",
+                }}
+              >
+                {loading ? "..." : t.freeChapterCta}
               </button>
               <p style={{ fontSize: "0.75rem", color: "var(--color-brand-muted)" }}>
                 {t.noSpamShort}

@@ -63,6 +63,7 @@ export const products: Product[] = [
     image: "/book-harmonies-v1.png",
     description: `The debut novel by ${AUTHOR}. A young boy in Detroit discovers that music, faith, and family are the instruments God uses to compose your purpose. Published by Hood Hymns Publishing. 2026.`,
     collection: "The Harmonies of Hope",
+    productType: "physical",
   },
   {
     id: "harmonies-v1-digital",
@@ -72,6 +73,17 @@ export const products: Product[] = [
     image: "/book-harmonies-v1.png",
     description: `The complete digital edition by ${AUTHOR}. DRM-free EPUB and PDF. Compatible with Kindle, Apple Books, Kobo, and all major e-readers. Delivered instantly.`,
     collection: "The Harmonies of Hope",
+    productType: "digital",
+  },
+  {
+    id: "harmonies-v1-digital-deal",
+    title: "The Harmonies of Hope — Digital Edition",
+    type: "E-Book · Vol. I",
+    price: "$9.99",
+    image: "/book-harmonies-v1.png",
+    description: `The debut novel in digital format by ${AUTHOR}. Instant download. DRM-free PDF. Read on any device — Kindle, iPad, tablet, or computer. Faith, family, and music from the heart of Detroit.`,
+    collection: "The Harmonies of Hope",
+    productType: "digital",
   },
   {
     id: "harmonies-character-tee",
@@ -82,6 +94,7 @@ export const products: Product[] = [
     description: `Premium vintage-wash black t-shirt. Original character graphic of a young trombonist from the novel — screen-printed in copper & royal purple. Runs true to size. Official ${AUTHOR} merchandise.`,
     collection: "The Harmonies of Hope",
     paymentLink: "https://buy.stripe.com/4gM4gAa0YaxU6OVd769MY0j",
+    productType: "physical",
   },
   // PRODIGAL BLOCK
   {
@@ -92,6 +105,17 @@ export const products: Product[] = [
     image: "/book-prodigal-v1.png",
     description: `Book one of The Prodigal Block by ${AUTHOR}. Marcus chose the streets over the sanctuary — and this is the story of his long road back to grace. A gritty Detroit redemption saga. 285 pages.`,
     collection: "The Prodigal Block",
+    productType: "physical",
+  },
+  {
+    id: "prodigal-v1-coming-soon-digital",
+    title: "The Prodigal Block: Lost Frequency — Digital Edition",
+    type: "E-Book · Vol. I",
+    price: "$9.99",
+    image: "/book-prodigal-v1.png",
+    description: `The Prodigal Block in digital format by ${AUTHOR}. DRM-free PDF. Read on any device. A raw Detroit redemption saga — coming soon to instant download.`,
+    collection: "The Prodigal Block",
+    productType: "digital",
   },
   {
     id: "prodigal-v2-physical",
@@ -101,6 +125,7 @@ export const products: Product[] = [
     image: "/book-prodigal-v2.png",
     description: `Book two of The Prodigal Block by ${AUTHOR}. The road back is longer than the road out. Marcus faces the hardest walk of his life — through the church doors he left behind. 310 pages.`,
     collection: "The Prodigal Block",
+    productType: "physical",
   },
   // STUDIO MERCH
   {
@@ -112,6 +137,7 @@ export const products: Product[] = [
     description: `Heavyweight 400g deep purple hoodie. Embroidered Hood Hymns Publishing logo in copper on chest. Reinforced cuffs and hem. Limited production run.`,
     collection: "Studio Merch",
     paymentLink: "https://buy.stripe.com/5kQ3cw8WUgWiflr7MM9MY0g",
+    productType: "physical",
   },
   {
     id: "core-tshirt",
@@ -122,6 +148,7 @@ export const products: Product[] = [
     description: `Premium 100% cotton heavyweight black tee. Official Hood Hymns Publishing studio mark in white & copper. Oversized cut. Pre-washed and pre-shrunk.`,
     collection: "Studio Merch",
     paymentLink: "https://buy.stripe.com/14AdRa0qo49w1uB7MM9MY0h",
+    productType: "physical",
   },
   {
     id: "core-snapback",
@@ -132,6 +159,7 @@ export const products: Product[] = [
     description: `Structured 6-panel snapback in all black. Embroidered HH monogram in copper on front. Flat brim, adjustable snap closure. One size fits most.`,
     collection: "Studio Merch",
     paymentLink: "https://buy.stripe.com/6oUcN66OMbBY8X35EE9MY0i",
+    productType: "physical",
   },
   // BLOCK TO BLESSING
   {
@@ -143,6 +171,7 @@ export const products: Product[] = [
     description: `Heavyweight 400g black hoodie with bold copper 'BLOCK TO BLESSING' across the chest. Cross emblem detail. Reinforced cuffs and hem. Oversized streetwear fit. Limited drop.`,
     collection: "Block to Blessing",
     paymentLink: "https://buy.stripe.com/5kQaEY3CA0Xkgpv8QQ9MY0k",
+    productType: "physical",
   },
   {
     id: "b2b-tee",
@@ -153,6 +182,7 @@ export const products: Product[] = [
     description: `Premium heavyweight black tee featuring the B2B circular badge — copper logo with cross detail. 100% cotton. Pre-washed. Runs true to size. Official Block to Blessing.`,
     collection: "Block to Blessing",
     paymentLink: "https://buy.stripe.com/bJe5kE1useOa5KR4AA9MY0l",
+    productType: "physical",
   },
   {
     id: "b2b-cap",
@@ -163,6 +193,7 @@ export const products: Product[] = [
     description: `Structured 6-panel snapback in deep purple. Copper embroidered B2B interlock monogram on front panel. Flat brim, adjustable snap closure. One size fits most.`,
     collection: "Block to Blessing",
     paymentLink: "https://buy.stripe.com/3cI7sM1us9tQ4GNc329MY0m",
+    productType: "physical",
   },
   {
     id: "b2b-crewneck",
@@ -173,6 +204,7 @@ export const products: Product[] = [
     description: `Premium 380g black crewneck sweatshirt with subtle embroidered copper B2B interlock on the left chest. Minimal, clean, built to layer. Ribbed cuffs and waistband.`,
     collection: "Block to Blessing",
     paymentLink: "https://buy.stripe.com/6oU7sMa0Y0Xk2yF1oo9MY0n",
+    productType: "physical",
   },
   {
     id: "b2b-joggers",
@@ -182,6 +214,7 @@ export const products: Product[] = [
     image: "/b2b-joggers.png",
     description: `Premium cotton-blend black joggers with copper 'BLOCK TO BLESSING' branding down the left leg. Elastic cuffs, drawstring waist, zippered pockets. Matching set available with B2B Hoodie.`,
     collection: "Block to Blessing",
+    productType: "physical",
   },
   {
     id: "detroit-choir-tee",
@@ -192,5 +225,6 @@ export const products: Product[] = [
     description: `Premium black tee with artistic Detroit skyline and choir silhouette design in purple & copper. 'DETROIT • HOOD HYMNS' text. Urban faith meets streetwear. Official B2B.`,
     collection: "Block to Blessing",
     paymentLink: "https://buy.stripe.com/00w6oI1us49wddj8QQ9MY0o",
+    productType: "physical",
   },
 ];

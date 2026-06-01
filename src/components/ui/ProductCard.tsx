@@ -12,6 +12,7 @@ export interface Product {
   description: string;
   collection: string;
   paymentLink?: string;
+  productType?: "physical" | "digital";
 }
 
 interface ProductCardProps {
@@ -27,8 +28,11 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { t } = useI18n();
   const [loading, setLoading] = useState(false);
-  const isComingSoon = product.image.includes("v2") && product.collection === "The Prodigal Block";
+  const isComingSoon =
+    (product.image.includes("v2") && product.collection === "The Prodigal Block") ||
+    product.id.includes("coming-soon");
   const isMerch = !product.type.includes("Paperback") && !product.type.includes("E-Book");
+  const isDigital = product.productType === "digital";
 
   async function handleCheckout() {
     if (loading || isComingSoon) return;
@@ -49,6 +53,7 @@ export default function ProductCard({
           title: `${product.title} — ${product.type}`,
           price: product.price,
           image: product.image,
+          type: product.productType ?? "physical",
         }),
       });
 
@@ -129,6 +134,32 @@ export default function ProductCard({
             {product.type.includes("Accessories") ? t.firstRun : t.limitedEdition}
           </div>
         )}
+        {/* Digital Download Badge */}
+        {isDigital && (
+          <div
+            style={{
+              position: "absolute",
+              top: "12px",
+              right: "12px",
+              zIndex: 3,
+              background:
+                "linear-gradient(135deg, rgba(0, 180, 216, 0.9) 0%, rgba(0, 150, 199, 0.85) 100%)",
+              color: "#fff",
+              fontSize: "0.6rem",
+              fontWeight: 800,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              padding: "5px 10px",
+              borderRadius: "4px",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              boxShadow: "0 2px 12px rgba(0, 180, 216, 0.3)",
+            }}
+          >
+            {t.digitalDownload}
+          </div>
+        )}
       </div>
 
       {/* Details */}
@@ -145,6 +176,28 @@ export default function ProductCard({
         >
           {product.type}
         </p>
+        {/* Instant Download info for digital products */}
+        {isDigital && !isComingSoon && (
+          <p
+            style={{
+              fontSize: "0.68rem",
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+              color: "rgba(0, 200, 230, 0.85)",
+              marginBottom: "6px",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            {t.instantDownload}
+          </p>
+        )}
         <h3
           style={{
             fontFamily: "var(--font-display)",

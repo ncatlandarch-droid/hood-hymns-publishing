@@ -257,6 +257,15 @@ export interface UIStrings {
   // Limited Edition Badge
   limitedEdition: string;
   firstRun: string;
+  // Ebook / Digital Downloads
+  ebookReady: string;
+  downloadNow: string;
+  downloadExpires: string;
+  downloadLimit: string;
+  addToLibrary: string;
+  digitalDownload: string;
+  instantDownload: string;
+  digitalEdition: string;
 }
 
 export const translations: Record<Locale, UIStrings> = {
@@ -461,6 +470,15 @@ export const translations: Record<Locale, UIStrings> = {
     // Limited Edition Badge
     limitedEdition: "Limited Edition",
     firstRun: "First Run",
+    // Ebook / Digital Downloads
+    ebookReady: "Your Ebook Is Ready!",
+    downloadNow: "Download Now",
+    downloadExpires: "Your download link expires in 24 hours.",
+    downloadLimit: "You can download up to 3 times.",
+    addToLibrary: "Tip: Add the PDF to your Kindle, Apple Books, or favorite reader for the best experience.",
+    digitalDownload: "Digital Download",
+    instantDownload: "Instant Download",
+    digitalEdition: "Digital Edition",
   },
 
   es: {
@@ -664,6 +682,15 @@ export const translations: Record<Locale, UIStrings> = {
     // Limited Edition Badge
     limitedEdition: "Edición Limitada",
     firstRun: "Primera Tirada",
+    // Ebook / Digital Downloads
+    ebookReady: "¡Tu Libro Digital Está Listo!",
+    downloadNow: "Descargar Ahora",
+    downloadExpires: "Tu enlace de descarga expira en 24 horas.",
+    downloadLimit: "Puedes descargar hasta 3 veces.",
+    addToLibrary: "Consejo: Agrega el PDF a tu Kindle, Apple Books o lector favorito para la mejor experiencia.",
+    digitalDownload: "Descarga Digital",
+    instantDownload: "Descarga Instantánea",
+    digitalEdition: "Edición Digital",
   },
 
   zh: {
@@ -867,6 +894,15 @@ export const translations: Record<Locale, UIStrings> = {
     // Limited Edition Badge
     limitedEdition: "限量版",
     firstRun: "首批发售",
+    // Ebook / Digital Downloads
+    ebookReady: "您的电子书已准备好！",
+    downloadNow: "立即下载",
+    downloadExpires: "您的下载链接将在24小时后过期。",
+    downloadLimit: "您最多可以下载3次。",
+    addToLibrary: "提示：将PDF添加到您的Kindle、Apple Books或喜爱的阅读器中，获得最佳阅读体验。",
+    digitalDownload: "数字下载",
+    instantDownload: "即时下载",
+    digitalEdition: "数字版",
   },
 };
 

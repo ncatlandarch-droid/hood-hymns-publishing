@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { generateDownloadToken } from "@/lib/download-tokens";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,11 +15,12 @@ export async function POST(req: NextRequest) {
     const stripe = new Stripe(secretKey, { apiVersion: "2026-05-27.dahlia" });
 
     const body = await req.json();
-    const { id, title, price, image } = body as {
+    const { id, title, price, image, type } = body as {
       id: string;
       title: string;
       price: string;
       image: string;
+      type?: "physical" | "digital";
     };
 
     if (!id || !title || !price) {
@@ -50,6 +52,23 @@ export async function POST(req: NextRequest) {
       images.push(absoluteImage);
     }
 
+    const isDigital = type === "digital";
+
+    // For digital products, generate a download token to include in the success URL
+    let successUrl: string;
+    if (isDigital) {
+      // Map product IDs to ebook file IDs
+      const fileIdMap: Record<string, string> = {
+        "harmonies-v1-digital": "harmonies-of-hope",
+        "harmonies-v1-digital-deal": "harmonies-of-hope",
+      };
+      const fileId = fileIdMap[id] ?? "harmonies-of-hope";
+      const downloadToken = generateDownloadToken(fileId);
+      successUrl = `${origin}/ebook-success?token=${downloadToken}`;
+    } else {
+      successUrl = `${origin}/success?session_id={CHECKOUT_SESSION_ID}`;
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [
@@ -59,14 +78,22 @@ export async function POST(req: NextRequest) {
             product_data: {
               name: title,
               images,
-              metadata: { productId: id },
+              metadata: { productId: id, productType: type ?? "physical" },
             },
             unit_amount: unitAmount,
           },
           quantity: 1,
         },
       ],
-      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      // Digital products don't need shipping address collection
+      ...(isDigital
+        ? {}
+        : {
+            shipping_address_collection: {
+              allowed_countries: ["US", "CA", "GB", "AU"],
+            },
+          }),
+      success_url: successUrl,
       cancel_url: `${origin}/store`,
     });
 

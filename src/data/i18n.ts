@@ -243,6 +243,20 @@ export interface UIStrings {
   faithForwardNote: string;
   continueShopping: string;
   hoodHymns: string;
+  // Bundle Deals
+  bundleAndSave: string;
+  bundleSubtitle: string;
+  starterBundle: string;
+  collectorBundle: string;
+  completeBundle: string;
+  buyBundle: string;
+  originalPrice: string;
+  // Store Reviews
+  storeReviewsTitle: string;
+  storeReviewsSubtitle: string;
+  // Limited Edition Badge
+  limitedEdition: string;
+  firstRun: string;
 }
 
 export const translations: Record<Locale, UIStrings> = {
@@ -433,6 +447,20 @@ export const translations: Record<Locale, UIStrings> = {
     faithForwardNote: "Every purchase fuels the mission. Faith forward.",
     continueShopping: "Continue Shopping",
     hoodHymns: "Hood Hymns",
+    // Bundle Deals
+    bundleAndSave: "Bundle & Save",
+    bundleSubtitle: "Grab more, save more. Limited-time bundles curated for true fans.",
+    starterBundle: "The Starter Bundle",
+    collectorBundle: "The Collector Bundle",
+    completeBundle: "The Complete Collection",
+    buyBundle: "Buy Bundle",
+    originalPrice: "Originally",
+    // Store Reviews
+    storeReviewsTitle: "What Readers Are Saying",
+    storeReviewsSubtitle: "Real reviews from the Hood Hymns community.",
+    // Limited Edition Badge
+    limitedEdition: "Limited Edition",
+    firstRun: "First Run",
   },
 
   es: {
@@ -622,6 +650,20 @@ export const translations: Record<Locale, UIStrings> = {
     faithForwardNote: "Cada compra impulsa la misión. Fe en acción.",
     continueShopping: "Seguir Comprando",
     hoodHymns: "Hood Hymns",
+    // Bundle Deals
+    bundleAndSave: "Combina y Ahorra",
+    bundleSubtitle: "Lleva más, ahorra más. Combos por tiempo limitado para verdaderos fans.",
+    starterBundle: "El Combo Inicial",
+    collectorBundle: "El Combo Coleccionista",
+    completeBundle: "La Colección Completa",
+    buyBundle: "Comprar Combo",
+    originalPrice: "Originalmente",
+    // Store Reviews
+    storeReviewsTitle: "Lo Que Dicen los Lectores",
+    storeReviewsSubtitle: "Reseñas reales de la comunidad de Hood Hymns.",
+    // Limited Edition Badge
+    limitedEdition: "Edición Limitada",
+    firstRun: "Primera Tirada",
   },
 
   zh: {
@@ -811,6 +853,20 @@ export const translations: Record<Locale, UIStrings> = {
     faithForwardNote: "每一次购买都在推动使命。信仰前行。",
     continueShopping: "继续购物",
     hoodHymns: "Hood Hymns",
+    // Bundle Deals
+    bundleAndSave: "组合优惠",
+    bundleSubtitle: "买得越多，省得越多。限时粉丝精选组合。",
+    starterBundle: "入门组合",
+    collectorBundle: "收藏家组合",
+    completeBundle: "完整典藏",
+    buyBundle: "购买组合",
+    originalPrice: "原价",
+    // Store Reviews
+    storeReviewsTitle: "读者怎么说",
+    storeReviewsSubtitle: "来自Hood Hymns社区的真实评价。",
+    // Limited Edition Badge
+    limitedEdition: "限量版",
+    firstRun: "首批发售",
   },
 };
 

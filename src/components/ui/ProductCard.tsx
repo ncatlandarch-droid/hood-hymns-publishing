@@ -28,6 +28,7 @@ export default function ProductCard({
   const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const isComingSoon = product.image.includes("v2") && product.collection === "The Prodigal Block";
+  const isMerch = !product.type.includes("Paperback") && !product.type.includes("E-Book");
 
   async function handleCheckout() {
     if (loading || isComingSoon) return;
@@ -102,6 +103,32 @@ export default function ProductCard({
             pointerEvents: "none",
           }}
         />
+        {/* Limited Edition Badge — merch only (not books) */}
+        {isMerch && (
+          <div
+            style={{
+              position: "absolute",
+              top: "12px",
+              right: "12px",
+              zIndex: 3,
+              background:
+                "linear-gradient(135deg, rgba(184, 115, 51, 0.9) 0%, rgba(212, 148, 74, 0.85) 100%)",
+              color: "#fff",
+              fontSize: "0.6rem",
+              fontWeight: 800,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              padding: "5px 10px",
+              borderRadius: "4px",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              boxShadow: "0 2px 12px rgba(184, 115, 51, 0.3)",
+            }}
+          >
+            {product.type.includes("Accessories") ? t.firstRun : t.limitedEdition}
+          </div>
+        )}
       </div>
 
       {/* Details */}

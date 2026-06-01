@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (event.type === "checkout.session.completed") {
-      /* eslint-disable @typescript-eslint/no-explicit-any */
+      // eslint-disable-next-line
       const session = event.data.object as any;
       console.log(`[webhook] Checkout completed: ${session.id}`);
 

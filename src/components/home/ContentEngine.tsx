@@ -92,7 +92,7 @@ export default function ContentEngine() {
               marginBottom: "12px",
             }}
           >
-            Join the <span className="text-gradient-copper">Hood Hymns</span> Community
+            {t.joinCommunityHeading}
           </h3>
           <p
             style={{
@@ -104,7 +104,7 @@ export default function ContentEngine() {
               lineHeight: 1.6,
             }}
           >
-            Get exclusive content, early chapter drops, and behind-the-scenes updates.
+            {t.joinCommunityBody}
           </p>
           <Link
             href="/subscribe"

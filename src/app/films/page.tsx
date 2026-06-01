@@ -18,8 +18,8 @@ export default function FilmsPage() {
     },
     {
       id: "prodigal-film",
-      title: "The Prodigal Block — The Film",
-      description: "A raw, cinematic journey through the streets of Detroit. The story of Marcus — and the long road back to grace.",
+      title: t.prodigalFilmTitle,
+      description: t.prodigalFilmDesc,
       image: "/prodigal-scene1.jpg",
       status: t.comingSoon,
       accent: "var(--color-brand-primary)",
@@ -41,7 +41,7 @@ export default function FilmsPage() {
               fontWeight: 700,
             }}
           >
-            Hood Hymns Studios
+            {t.hoodHymnsStudios}
           </p>
           <h1
             style={{
@@ -139,7 +139,7 @@ export default function FilmsPage() {
             {fi.shortFilmsTitle}
           </h2>
           <p style={{ fontSize: "0.9rem", color: "var(--color-brand-muted)", marginBottom: "32px" }}>
-            Original short films and trailers from the Hood Hymns universe — {t.comingSoon.toLowerCase()}.
+            {t.shortFilmsComingDesc} — {t.comingSoon.toLowerCase()}.
           </p>
           <div
             className="brutalist-card"
@@ -152,7 +152,7 @@ export default function FilmsPage() {
             }}
           >
             <p style={{ color: "var(--color-brand-muted)", fontSize: "0.85rem" }}>
-              🎬 Short films and trailers coming soon
+              {t.shortFilmsComingPlaceholder}
             </p>
           </div>
         </section>

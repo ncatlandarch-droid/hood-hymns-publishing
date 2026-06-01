@@ -22,7 +22,7 @@ export default function StorePage() {
               fontWeight: 700,
             }}
           >
-            Shop
+            {t.shopTag}
           </p>
           <h1
             style={{

@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useI18n } from "@/context/I18nContext";
 
 export default function SuccessPage() {
+  const { t } = useI18n();
+
   return (
     <div
       style={{
@@ -69,7 +72,7 @@ export default function SuccessPage() {
             fontWeight: 700,
           }}
         >
-          Order Confirmed
+          {t.orderConfirmedTag}
         </p>
 
         <h1
@@ -82,7 +85,7 @@ export default function SuccessPage() {
             lineHeight: 1.2,
           }}
         >
-          Thank You for Your Support
+          {t.thankYouTitle}
         </h1>
 
         <p
@@ -95,9 +98,7 @@ export default function SuccessPage() {
             margin: "0 auto 12px",
           }}
         >
-          Your order from Hood Hymns Publishing has been placed successfully.
-          You&apos;ll receive a confirmation email with your receipt and order
-          details.
+          {t.orderPlacedBody}
         </p>
 
         <p
@@ -107,7 +108,7 @@ export default function SuccessPage() {
             marginBottom: "40px",
           }}
         >
-          Every purchase fuels the mission. Faith forward.&nbsp;🙏🏾
+          {t.faithForwardNote}&nbsp;🙏🏾
         </p>
 
         {/* Divider */}
@@ -139,7 +140,7 @@ export default function SuccessPage() {
               display: "inline-block",
             }}
           >
-            Continue Shopping
+            {t.continueShopping}
           </Link>
           <Link
             href="/"
@@ -151,7 +152,7 @@ export default function SuccessPage() {
               display: "inline-block",
             }}
           >
-            Back to Home
+            {t.backToHome}
           </Link>
         </div>
       </div>

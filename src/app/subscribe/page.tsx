@@ -15,34 +15,34 @@ export default function SubscribePage() {
 
   const tiers = [
     {
-      name: "Community",
-      price: "Free",
-      features: ["Monthly newsletter", "Release announcements", "Community access"],
+      name: t.communityTierName,
+      price: t.communityTierPrice,
+      features: [t.communityFeature1, t.communityFeature2, t.communityFeature3],
       accent: "var(--color-brand-muted)",
       featured: false,
     },
     {
-      name: "Insider",
-      price: "$5/mo",
+      name: t.insiderTierName,
+      price: t.insiderTierPrice,
       features: [
-        "Everything in Community",
-        "Early chapter drops",
-        "Behind-the-scenes content",
-        "Exclusive audio narrations",
-        "Priority merch access",
+        t.insiderFeature1,
+        t.insiderFeature2,
+        t.insiderFeature3,
+        t.insiderFeature4,
+        t.insiderFeature5,
       ],
       accent: "var(--color-brand-copper)",
       featured: true,
     },
     {
-      name: "Patron",
-      price: "$15/mo",
+      name: t.patronTierName,
+      price: t.patronTierPrice,
       features: [
-        "Everything in Insider",
-        "Signed copies on release",
-        "Direct author Q&A access",
-        "Name in acknowledgements",
-        "Exclusive B2B drops",
+        t.patronFeature1,
+        t.patronFeature2,
+        t.patronFeature3,
+        t.patronFeature4,
+        t.patronFeature5,
       ],
       accent: "var(--color-brand-primary)",
       featured: false,
@@ -64,7 +64,7 @@ export default function SubscribePage() {
               fontWeight: 700,
             }}
           >
-            Newsletter
+            {t.newsletterTag}
           </p>
           <h1
             style={{
@@ -97,10 +97,10 @@ export default function SubscribePage() {
           >
             <div style={{ fontSize: "3rem", marginBottom: "16px" }}>🎵</div>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 700, marginBottom: "12px" }}>
-              You&apos;re In!
+              {t.youreIn}
             </h2>
             <p style={{ fontSize: "0.9rem", color: "var(--color-brand-muted)" }}>
-              Welcome to the Hood Hymns community. Look for our next update in your inbox.
+              {t.youreInBody}
             </p>
           </div>
         ) : (
@@ -171,7 +171,7 @@ export default function SubscribePage() {
                     textTransform: "uppercase",
                   }}
                 >
-                  Most Popular
+                  {t.mostPopular}
                 </span>
               )}
               <h3
@@ -196,9 +196,9 @@ export default function SubscribePage() {
                 {tier.price}
               </p>
               <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {tier.features.map((feature) => (
+                {tier.features.map((feature, idx) => (
                   <li
-                    key={feature}
+                    key={idx}
                     style={{
                       padding: "8px 0",
                       fontSize: "0.85rem",

@@ -22,7 +22,7 @@ export default function AboutPage() {
               fontWeight: 700,
             }}
           >
-            The Author
+            {t.theAuthor}
           </p>
           <h1
             style={{
@@ -176,7 +176,7 @@ export default function AboutPage() {
               marginBottom: "40px",
             }}
           >
-            The <span className="text-gradient-copper">Series</span>
+            <span className="text-gradient-copper">{t.theSeries}</span>
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
             {seriesList.filter((s) => s.synopsis).map((series) => (

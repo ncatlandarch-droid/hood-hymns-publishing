@@ -64,7 +64,7 @@ export default function HeroLeadMagnet() {
             fontWeight: 700,
           }}
         >
-          Hood Hymns Publishing · Detroit, MI
+          {t.publisherTagHero}
         </p>
 
         {/* Main headline */}
@@ -78,10 +78,10 @@ export default function HeroLeadMagnet() {
             marginBottom: "24px",
           }}
         >
-          <span className="text-gradient-copper">Hood Hymns</span>
+          <span className="text-gradient-copper">{t.heroHeadlinePart1}</span>
           <br />
           <span style={{ color: "var(--color-brand-text)" }}>
-            Positive stories rooted in the streets
+            {t.heroHeadlinePart2}
           </span>
         </h1>
 
@@ -144,7 +144,7 @@ export default function HeroLeadMagnet() {
             }}
           />
           <p style={{ fontSize: "0.65rem", color: "var(--color-brand-muted)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-            Scroll
+            {t.scrollLabel}
           </p>
         </div>
       </div>

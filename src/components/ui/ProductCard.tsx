@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/context/I18nContext";
 
 export interface Product {
   id: string;
@@ -24,6 +25,7 @@ export default function ProductCard({
   addToCartLabel = "Add to Cart",
   notifyLabel = "Notify Me",
 }: ProductCardProps) {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const isComingSoon = product.image.includes("v2") && product.collection === "The Prodigal Block";
 
@@ -170,7 +172,7 @@ export default function ProductCard({
             {isComingSoon
               ? notifyLabel
               : loading
-                ? "Redirecting…"
+                ? t.redirecting
                 : addToCartLabel}
           </button>
         </div>

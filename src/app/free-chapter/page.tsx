@@ -29,7 +29,7 @@ export default function FreeChapterPage() {
             fontWeight: 700,
           }}
         >
-          Hood Hymns Publishing
+          {t.hoodHymnsPublishing}
         </p>
         <h1
           style={{
@@ -70,10 +70,10 @@ export default function FreeChapterPage() {
                 marginBottom: "12px",
               }}
             >
-              Check Your Inbox!
+              {t.checkYourInbox}
             </h2>
             <p style={{ fontSize: "0.9rem", color: "var(--color-brand-muted)", lineHeight: 1.6 }}>
-              Chapter One of <em>The Harmonies of Hope</em> is on its way to <strong>{email}</strong>.
+              Chapter One of <em>The Harmonies of Hope</em> {t.chapterOnItsWay} <strong>{email}</strong>.
             </p>
           </div>
         ) : (
@@ -124,7 +124,7 @@ export default function FreeChapterPage() {
                 {t.freeChapterCta}
               </button>
               <p style={{ fontSize: "0.75rem", color: "var(--color-brand-muted)" }}>
-                No spam. Unsubscribe anytime. We respect your inbox.
+                {t.noSpamShort}
               </p>
             </div>
           </form>

@@ -34,7 +34,7 @@ export default function Footer() {
                 marginBottom: "12px",
               }}
             >
-              Hood Hymns
+              {t.hoodHymns}
             </h3>
             <p style={{ fontSize: "0.85rem", color: "var(--color-brand-muted)", lineHeight: 1.6 }}>
               {t.footerTagline}
@@ -53,7 +53,7 @@ export default function Footer() {
                 fontWeight: 700,
               }}
             >
-              Quick Links
+              {t.footerQuickLinks}
             </h4>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {[
@@ -92,7 +92,7 @@ export default function Footer() {
                 fontWeight: 700,
               }}
             >
-              Community
+              {t.footerCommunity}
             </h4>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <Link

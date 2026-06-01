@@ -57,6 +57,8 @@ export const DEFAULT_LOCALE: Locale = "en";
 
 // ── UI String Translations ─────────────────────────────────────────────────────
 export interface UIStrings {
+  // Testimonial of the Day
+  testimonialOfTheDay: string;
   // Nav
   home: string;
   experience: string;
@@ -187,10 +189,66 @@ export interface UIStrings {
   // General
   readMore: string;
   backToHome: string;
+  // Additional UI strings
+  theAuthor: string;
+  theSeries: string;
+  shopTag: string;
+  cinematicNarratives: string;
+  experienceTitle: string;
+  experienceSubtitle: string;
+  byAuthor: string;
+  hoodHymnsStudios: string;
+  prodigalFilmTitle: string;
+  prodigalFilmDesc: string;
+  shortFilmsComingDesc: string;
+  shortFilmsComingPlaceholder: string;
+  hoodHymnsTag: string;
+  newsletterTag: string;
+  youreIn: string;
+  youreInBody: string;
+  mostPopular: string;
+  communityTierName: string;
+  communityTierPrice: string;
+  insiderTierName: string;
+  insiderTierPrice: string;
+  patronTierName: string;
+  patronTierPrice: string;
+  communityFeature1: string;
+  communityFeature2: string;
+  communityFeature3: string;
+  insiderFeature1: string;
+  insiderFeature2: string;
+  insiderFeature3: string;
+  insiderFeature4: string;
+  insiderFeature5: string;
+  patronFeature1: string;
+  patronFeature2: string;
+  patronFeature3: string;
+  patronFeature4: string;
+  patronFeature5: string;
+  hoodHymnsPublishing: string;
+  checkYourInbox: string;
+  chapterOnItsWay: string;
+  noSpamShort: string;
+  publisherTagHero: string;
+  heroHeadlinePart1: string;
+  heroHeadlinePart2: string;
+  scrollLabel: string;
+  joinCommunityHeading: string;
+  joinCommunityBody: string;
+  redirecting: string;
+  orderConfirmedTag: string;
+  thankYouTitle: string;
+  orderPlacedBody: string;
+  faithForwardNote: string;
+  continueShopping: string;
+  hoodHymns: string;
 }
 
 export const translations: Record<Locale, UIStrings> = {
   en: {
+    // Testimonial of the Day
+    testimonialOfTheDay: "Testimonial of the Day",
     // Nav
     home: "Home",
     experience: "Experience",
@@ -321,9 +379,65 @@ export const translations: Record<Locale, UIStrings> = {
     // General
     readMore: "Read More",
     backToHome: "Back to Home",
+    // Additional UI strings
+    theAuthor: "The Author",
+    theSeries: "Series",
+    shopTag: "Shop",
+    cinematicNarratives: "Cinematic Narratives",
+    experienceTitle: "Experience the Stories",
+    experienceSubtitle: "Press play and immerse yourself. Each story comes alive through narration and cinematic imagery.",
+    byAuthor: "By C.D. Howell",
+    hoodHymnsStudios: "Hood Hymns Studios",
+    prodigalFilmTitle: "The Prodigal Block — The Film",
+    prodigalFilmDesc: "A raw, cinematic journey through the streets of Detroit. The story of Marcus — and the long road back to grace.",
+    shortFilmsComingDesc: "Original short films and trailers from the Hood Hymns universe",
+    shortFilmsComingPlaceholder: "🎬 Short films and trailers coming soon",
+    hoodHymnsTag: "Hood Hymns",
+    newsletterTag: "Newsletter",
+    youreIn: "You're In!",
+    youreInBody: "Welcome to the Hood Hymns community. Look for our next update in your inbox.",
+    mostPopular: "Most Popular",
+    communityTierName: "Community",
+    communityTierPrice: "Free",
+    insiderTierName: "Insider",
+    insiderTierPrice: "$5/mo",
+    patronTierName: "Patron",
+    patronTierPrice: "$15/mo",
+    communityFeature1: "Monthly newsletter",
+    communityFeature2: "Release announcements",
+    communityFeature3: "Community access",
+    insiderFeature1: "Everything in Community",
+    insiderFeature2: "Early chapter drops",
+    insiderFeature3: "Behind-the-scenes content",
+    insiderFeature4: "Exclusive audio narrations",
+    insiderFeature5: "Priority merch access",
+    patronFeature1: "Everything in Insider",
+    patronFeature2: "Signed copies on release",
+    patronFeature3: "Direct author Q&A access",
+    patronFeature4: "Name in acknowledgements",
+    patronFeature5: "Exclusive B2B drops",
+    hoodHymnsPublishing: "Hood Hymns Publishing",
+    checkYourInbox: "Check Your Inbox!",
+    chapterOnItsWay: "is on its way to",
+    noSpamShort: "No spam. Unsubscribe anytime. We respect your inbox.",
+    publisherTagHero: "Hood Hymns Publishing · Detroit, MI",
+    heroHeadlinePart1: "Hood Hymns",
+    heroHeadlinePart2: "Positive stories rooted in the streets",
+    scrollLabel: "Scroll",
+    joinCommunityHeading: "Join the Hood Hymns Community",
+    joinCommunityBody: "Get exclusive content, early chapter drops, and behind-the-scenes updates.",
+    redirecting: "Redirecting…",
+    orderConfirmedTag: "Order Confirmed",
+    thankYouTitle: "Thank You for Your Support",
+    orderPlacedBody: "Your order from Hood Hymns Publishing has been placed successfully. You'll receive a confirmation email with your receipt and order details.",
+    faithForwardNote: "Every purchase fuels the mission. Faith forward.",
+    continueShopping: "Continue Shopping",
+    hoodHymns: "Hood Hymns",
   },
 
   es: {
+    // Testimonial of the Day
+    testimonialOfTheDay: "Testimonio del Día",
     // Nav
     home: "Inicio",
     experience: "Experiencia",
@@ -454,9 +568,65 @@ export const translations: Record<Locale, UIStrings> = {
     // General
     readMore: "Leer Más",
     backToHome: "Volver al Inicio",
+    // Additional UI strings
+    theAuthor: "El Autor",
+    theSeries: "Series",
+    shopTag: "Tienda",
+    cinematicNarratives: "Narrativas Cinematográficas",
+    experienceTitle: "Experimenta las Historias",
+    experienceSubtitle: "Presiona play y sumérgete. Cada historia cobra vida a través de narración e imágenes cinematográficas.",
+    byAuthor: "Por C.D. Howell",
+    hoodHymnsStudios: "Hood Hymns Studios",
+    prodigalFilmTitle: "El Bloque Pródigo — La Película",
+    prodigalFilmDesc: "Un viaje crudo y cinematográfico por las calles de Detroit. La historia de Marcus — y el largo camino de regreso a la gracia.",
+    shortFilmsComingDesc: "Cortometrajes y tráilers originales del universo Hood Hymns",
+    shortFilmsComingPlaceholder: "🎬 Cortometrajes y tráilers próximamente",
+    hoodHymnsTag: "Hood Hymns",
+    newsletterTag: "Boletín",
+    youreIn: "¡Estás Dentro!",
+    youreInBody: "Bienvenido a la comunidad de Hood Hymns. Busca nuestra próxima actualización en tu bandeja de entrada.",
+    mostPopular: "Más Popular",
+    communityTierName: "Comunidad",
+    communityTierPrice: "Gratis",
+    insiderTierName: "Insider",
+    insiderTierPrice: "$5/mes",
+    patronTierName: "Patrón",
+    patronTierPrice: "$15/mes",
+    communityFeature1: "Boletín mensual",
+    communityFeature2: "Anuncios de lanzamiento",
+    communityFeature3: "Acceso a la comunidad",
+    insiderFeature1: "Todo lo de Comunidad",
+    insiderFeature2: "Capítulos anticipados",
+    insiderFeature3: "Contenido detrás de cámaras",
+    insiderFeature4: "Narraciones de audio exclusivas",
+    insiderFeature5: "Acceso prioritario a merchandising",
+    patronFeature1: "Todo lo de Insider",
+    patronFeature2: "Copias firmadas al lanzamiento",
+    patronFeature3: "Acceso directo a P&R con el autor",
+    patronFeature4: "Nombre en agradecimientos",
+    patronFeature5: "Lanzamientos B2B exclusivos",
+    hoodHymnsPublishing: "Hood Hymns Publishing",
+    checkYourInbox: "¡Revisa tu Bandeja!",
+    chapterOnItsWay: "está en camino a",
+    noSpamShort: "Sin spam. Cancela cuando quieras. Respetamos tu bandeja.",
+    publisherTagHero: "Hood Hymns Publishing · Detroit, MI",
+    heroHeadlinePart1: "Hood Hymns",
+    heroHeadlinePart2: "Historias positivas arraigadas en las calles",
+    scrollLabel: "Desplazar",
+    joinCommunityHeading: "Únete a la Comunidad Hood Hymns",
+    joinCommunityBody: "Obtén contenido exclusivo, capítulos anticipados y actualizaciones detrás de cámaras.",
+    redirecting: "Redirigiendo…",
+    orderConfirmedTag: "Pedido Confirmado",
+    thankYouTitle: "Gracias por tu Apoyo",
+    orderPlacedBody: "Tu pedido de Hood Hymns Publishing se ha realizado con éxito. Recibirás un correo de confirmación con tu recibo y detalles del pedido.",
+    faithForwardNote: "Cada compra impulsa la misión. Fe en acción.",
+    continueShopping: "Seguir Comprando",
+    hoodHymns: "Hood Hymns",
   },
 
   zh: {
+    // Testimonial of the Day
+    testimonialOfTheDay: "每日见证",
     // Nav
     home: "首页",
     experience: "体验",
@@ -587,6 +757,60 @@ export const translations: Record<Locale, UIStrings> = {
     // General
     readMore: "阅读更多",
     backToHome: "返回首页",
+    // Additional UI strings
+    theAuthor: "作者",
+    theSeries: "系列",
+    shopTag: "商店",
+    cinematicNarratives: "电影叙事",
+    experienceTitle: "体验故事",
+    experienceSubtitle: "按下播放，沉浸其中。每个故事通过叙述和电影画面栩栩如生。",
+    byAuthor: "C.D. Howell 著",
+    hoodHymnsStudios: "Hood Hymns Studios",
+    prodigalFilmTitle: "浪子街区 — 电影",
+    prodigalFilmDesc: "一段穿越底特律街头的原始电影之旅。马库斯的故事——以及回归恩典的漫长之路。",
+    shortFilmsComingDesc: "Hood Hymns宇宙的原创短片和预告片",
+    shortFilmsComingPlaceholder: "🎬 短片和预告片即将推出",
+    hoodHymnsTag: "Hood Hymns",
+    newsletterTag: "通讯",
+    youreIn: "您已加入！",
+    youreInBody: "欢迎加入Hood Hymns社区。请留意我们发送到您邮箱的下一次更新。",
+    mostPopular: "最受欢迎",
+    communityTierName: "社区",
+    communityTierPrice: "免费",
+    insiderTierName: "内部人士",
+    insiderTierPrice: "$5/月",
+    patronTierName: "赞助人",
+    patronTierPrice: "$15/月",
+    communityFeature1: "每月通讯",
+    communityFeature2: "发布公告",
+    communityFeature3: "社区访问",
+    insiderFeature1: "社区层级的一切",
+    insiderFeature2: "提前获取章节",
+    insiderFeature3: "幕后内容",
+    insiderFeature4: "独家音频叙述",
+    insiderFeature5: "优先获取周边商品",
+    patronFeature1: "内部人士层级的一切",
+    patronFeature2: "发布时获得签名副本",
+    patronFeature3: "直接参与作者问答",
+    patronFeature4: "鸣谢中的署名",
+    patronFeature5: "独家B2B发布",
+    hoodHymnsPublishing: "Hood Hymns Publishing",
+    checkYourInbox: "请查看您的邮箱！",
+    chapterOnItsWay: "正在发送到",
+    noSpamShort: "绝无垃圾邮件。随时退订。我们尊重您的邮箱。",
+    publisherTagHero: "Hood Hymns Publishing · 底特律，密歇根",
+    heroHeadlinePart1: "Hood Hymns",
+    heroHeadlinePart2: "植根于街头的积极故事",
+    scrollLabel: "滚动",
+    joinCommunityHeading: "加入Hood Hymns社区",
+    joinCommunityBody: "获取独家内容、提前获取章节和幕后更新。",
+    redirecting: "正在跳转…",
+    orderConfirmedTag: "订单已确认",
+    thankYouTitle: "感谢您的支持",
+    orderPlacedBody: "您在Hood Hymns Publishing的订单已成功下达。您将收到一封确认邮件，其中包含收据和订单详情。",
+    faithForwardNote: "每一次购买都在推动使命。信仰前行。",
+    continueShopping: "继续购物",
+    hoodHymns: "Hood Hymns",
   },
 };
 

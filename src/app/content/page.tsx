@@ -66,7 +66,7 @@ export default function ContentPage() {
               fontWeight: 700,
             }}
           >
-            Hood Hymns
+            {t.hoodHymnsTag}
           </p>
           <h1
             style={{

@@ -23,7 +23,7 @@ export default function ListenPage() {
               fontWeight: 700,
             }}
           >
-            Cinematic Narratives
+            {t.cinematicNarratives}
           </p>
           <h1
             style={{
@@ -33,10 +33,10 @@ export default function ListenPage() {
               marginBottom: "16px",
             }}
           >
-            Experience the <span className="text-gradient-copper">Stories</span>
+            {t.experienceTitle}
           </h1>
           <p style={{ fontSize: "1rem", color: "var(--color-brand-muted)", maxWidth: "600px", margin: "0 auto" }}>
-            Press play and immerse yourself. Each story comes alive through narration and cinematic imagery.
+            {t.experienceSubtitle}
           </p>
           <div className="copper-divider" style={{ marginTop: "24px" }} />
         </div>
@@ -50,7 +50,7 @@ export default function ListenPage() {
                 {/* Unified cinematic player */}
                 <CinematicNarrative
                   title={narrative.title}
-                  subtitle={`By C.D. Howell · ${narrative.seriesName}`}
+                  subtitle={`${t.byAuthor} · ${narrative.seriesName}`}
                   audioSrc={narrative.audioSrc || ""}
                   scenes={narrative.trailerScenes || []}
                   accentColor={narrative.accentColor}

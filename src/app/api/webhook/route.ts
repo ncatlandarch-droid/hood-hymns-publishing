@@ -34,12 +34,13 @@ export async function POST(req: NextRequest) {
     }
 
     if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      const session = event.data.object as any;
       console.log(`[webhook] Checkout completed: ${session.id}`);
 
       // Get line items
       const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
-      const shipping = session.shipping_details;
+      const shipping = session.shipping_details || session.shipping;
 
       if (!shipping?.address) {
         console.log("[webhook] No shipping address — digital product, skipping Printful");

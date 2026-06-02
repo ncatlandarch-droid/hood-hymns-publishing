@@ -125,19 +125,19 @@ export default function Footer() {
           >
             {t.footerRights}
           </p>
-          {/* Admin access — subtle, for author use only */}
+          {/* Admin access — for author use */}
           <Link
             href="/admin"
             style={{
-              fontSize: "0.65rem",
-              color: "transparent",
+              fontSize: "0.7rem",
+              color: "var(--color-brand-copper)",
               textDecoration: "none",
-              userSelect: "none",
-              opacity: 0.15,
+              opacity: 0.35,
               transition: "opacity 0.3s ease",
+              lineHeight: 1,
             }}
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.15")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.35")}
             title="Author Admin"
           >
             ✦

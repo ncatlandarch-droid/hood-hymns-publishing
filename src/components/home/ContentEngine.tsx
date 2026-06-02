@@ -2,31 +2,6 @@
 
 import Link from "next/link";
 import { useI18n } from "@/context/I18nContext";
-import ShortsCard, { ShortClip } from "@/components/ui/ShortsCard";
-
-const DEMO_CLIPS: ShortClip[] = [
-  {
-    id: "clip-1",
-    title: "The Two-Family Flat — Behind the Story",
-    thumbnail: "/harmonies-scene1.jpg",
-    duration: "0:58",
-    category: "Behind the Scenes",
-  },
-  {
-    id: "clip-2",
-    title: "Detroit Streets: Filming Locations",
-    thumbnail: "/prodigal-scene1.jpg",
-    duration: "1:24",
-    category: "On Location",
-  },
-  {
-    id: "clip-3",
-    title: "Faith & Music — Author's Reflection",
-    thumbnail: "/harmonies-scene2.jpg",
-    duration: "2:10",
-    category: "Author Talk",
-  },
-];
 
 export default function ContentEngine() {
   const { t } = useI18n();
@@ -59,20 +34,6 @@ export default function ContentEngine() {
             {t.contentTitle}
           </h2>
           <div className="copper-divider" />
-        </div>
-
-        {/* Clips grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-            gap: "24px",
-            marginBottom: "48px",
-          }}
-        >
-          {DEMO_CLIPS.map((clip) => (
-            <ShortsCard key={clip.id} clip={clip} />
-          ))}
         </div>
 
         {/* Community callout */}

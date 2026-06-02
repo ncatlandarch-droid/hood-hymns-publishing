@@ -3,6 +3,7 @@
 import { useI18n } from "@/context/I18nContext";
 import { authorBio } from "@/data/content";
 import { seriesList } from "@/data/store";
+import AuthorAvatar from "@/components/ui/AuthorAvatar";
 
 export default function AboutPage() {
   const { t } = useI18n();
@@ -207,6 +208,10 @@ export default function AboutPage() {
             ))}
           </div>
         </section>
+
+        {/* C.D. Howell AI Avatar */}
+        <AuthorAvatar />
+
       </div>
 
       <style jsx global>{`

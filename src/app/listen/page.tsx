@@ -3,10 +3,17 @@
 import { useI18n } from "@/context/I18nContext";
 import CinematicNarrative from "@/components/ui/CinematicNarrative";
 import BookExcerpt from "@/components/ui/BookExcerpt";
-import { narratives, excerpts } from "@/data/content";
+import { narratives, excerpts, NarrativeEntry } from "@/data/content";
+
+// Returns locale-specific audio path: /audio/harmonies-narrative-zh.wav etc.
+function getLocalizedAudioSrc(narrative: NarrativeEntry, locale: string): string {
+  if (!narrative.audioSrc) return "";
+  if (locale === "en") return narrative.audioSrc;
+  return narrative.audioSrc.replace(".wav", `-${locale}.wav`);
+}
 
 export default function ListenPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <div style={{ paddingTop: "100px", paddingBottom: "80px" }}>
@@ -51,7 +58,7 @@ export default function ListenPage() {
                 <CinematicNarrative
                   title={narrative.title}
                   subtitle={`${t.byAuthor} · ${narrative.seriesName}`}
-                  audioSrc={narrative.audioSrc || ""}
+                  audioSrc={getLocalizedAudioSrc(narrative, locale)}
                   scenes={narrative.trailerScenes || []}
                   accentColor={narrative.accentColor}
                 />

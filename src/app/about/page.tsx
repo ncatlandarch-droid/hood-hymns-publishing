@@ -44,7 +44,7 @@ export default function AboutPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "280px 1fr",
+            gridTemplateColumns: "360px 1fr",
             gap: "48px",
             marginBottom: "60px",
             alignItems: "start",
@@ -53,10 +53,10 @@ export default function AboutPage() {
         >
           {/* Photo */}
           <div
-            className="brutalist-card"
+                      className="brutalist-card"
             style={{
               overflow: "hidden",
-              aspectRatio: "3/4",
+              aspectRatio: "4/5",
               background: "var(--color-brand-surface)",
               position: "relative",
             }}
@@ -68,7 +68,10 @@ export default function AboutPage() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                objectPosition: "center 25%",
+                objectPosition: "center 12%",
+                transform: "scale(1.08)",
+                transformOrigin: "center top",
+                transition: "transform 0.4s ease",
               }}
               onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
             />

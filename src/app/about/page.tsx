@@ -30,11 +30,15 @@ export default function AboutPage() {
   const [isThinking, setIsThinking] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Scroll ONLY the chat box — not the whole page
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   }, [messages, isThinking]);
 
   useEffect(() => {
@@ -49,7 +53,7 @@ export default function AboutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text,
-          voice: "Kore",
+          voice: "Charon",
           style: "You are a warm, soulful African American male voice from Detroit. Deep, steady, wise — like a pastor sharing testimony with a friend.",
         }),
       });
@@ -62,6 +66,14 @@ export default function AboutPage() {
         await audioRef.current.play();
       }
     } catch { setIsSpeaking(false); }
+  }, []);
+
+  const stopAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsSpeaking(false);
   }, []);
 
   const sendMessage = useCallback(async (text: string) => {
@@ -151,7 +163,13 @@ export default function AboutPage() {
                   cursor: "pointer",
                   transition: "transform 0.3s ease, box-shadow 0.3s ease",
                 }}
-                onClick={() => setChatOpen(true)}
+                onClick={() => {
+                  if (isSpeaking) {
+                    stopAudio();
+                  } else {
+                    setChatOpen(true);
+                  }
+                }}
               >
                 <img
                   src={authorBio.photoPlaceholder}
@@ -179,7 +197,7 @@ export default function AboutPage() {
                     marginBottom: "6px",
                     transition: "color 0.3s ease",
                   }}>
-                    {isSpeaking ? "🎙️ Speaking..." : isThinking ? "✍️ Thinking..." : chatOpen ? "💬 Chat Open" : "✦ Click to Talk"}
+                    {isSpeaking ? "⏹ Tap to Stop" : isThinking ? "✍️ Thinking..." : chatOpen ? "💬 Chat Open" : "✦ Click to Talk"}
                   </p>
                   {!chatOpen && (
                     <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.4 }}>
@@ -214,7 +232,7 @@ export default function AboutPage() {
                 borderRadius: "0 0 12px 12px",
               }}>
                 {/* Messages */}
-                <div style={{ height: "240px", overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div ref={messagesContainerRef} style={{ height: "240px", overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
                   {messages.map((msg, i) => (
                     <div key={i} style={{
                       maxWidth: "90%",

@@ -8,6 +8,7 @@ export default function FreeChapterPage() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +24,7 @@ export default function FreeChapterPage() {
       const data = await res.json();
       if (data.success) {
         setSubmitted(true);
+        setDownloadUrl(data.downloadUrl || "/ebook.pdf");
         // Mark as subscribed so exit popup won't show
         localStorage.setItem("hh-subscribed", "true");
       }
@@ -91,9 +93,26 @@ export default function FreeChapterPage() {
             >
               {t.checkYourInbox}
             </h2>
-            <p style={{ fontSize: "0.9rem", color: "var(--color-brand-muted)", lineHeight: 1.6 }}>
+            <p style={{ fontSize: "0.9rem", color: "var(--color-brand-muted)", lineHeight: 1.6, marginBottom: "28px" }}>
               Chapter One of <em>The Harmonies of Hope</em> {t.chapterOnItsWay} <strong>{email}</strong>.
             </p>
+            {/* Immediate download button */}
+            <a
+              href={downloadUrl || "/ebook.pdf"}
+              download="Harmonies-of-Hope-Chapter-One.pdf"
+              className="btn-brand"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "10px",
+                textDecoration: "none",
+                fontSize: "1rem",
+                padding: "16px 32px",
+                animation: "pulse-glow 2s ease-in-out infinite",
+              }}
+            >
+              📥 Read It Now — Download Free Chapter
+            </a>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>

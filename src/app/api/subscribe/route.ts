@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, downloadUrl: "/ebook.pdf" });
   } catch (error) {
     console.error("[subscribe] Unexpected error:", error);
     return NextResponse.json(

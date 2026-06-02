@@ -32,6 +32,26 @@ export const metadata: Metadata = {
   authors: [{ name: "C.D. Howell" }],
   creator: "Hood Hymns Publishing",
   publisher: "Hood Hymns Publishing",
+  icons: {
+    icon: [
+      { url: "/favicon.ico",        sizes: "32x32",  type: "image/x-icon" },
+      { url: "/favicon-16x16.png",  sizes: "16x16",  type: "image/png" },
+      { url: "/favicon-32x32.png",  sizes: "32x32",  type: "image/png" },
+      { url: "/favicon-96x96.png",  sizes: "96x96",  type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      { rel: "mask-icon", url: "/favicon-96x96.png" },
+    ],
+  },
+  manifest: "/site.webmanifest",
+  appleWebApp: {
+    title: "Hood Hymns",
+    statusBarStyle: "black-translucent",
+  },
   openGraph: {
     title: "Hood Hymns Publishing — Faith-Based Urban Fiction from Detroit",
     description:

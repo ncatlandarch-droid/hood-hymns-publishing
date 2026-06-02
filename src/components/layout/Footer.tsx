@@ -107,12 +107,6 @@ export default function Footer() {
               >
                 {t.subscribe}
               </Link>
-              <Link
-                href="/content"
-                style={{ textDecoration: "none", fontSize: "0.85rem", color: "var(--color-brand-muted)" }}
-              >
-                {t.content}
-              </Link>
             </div>
           </div>
         </div>
@@ -121,15 +115,34 @@ export default function Footer() {
         <div className="copper-divider" style={{ maxWidth: "100%", marginBottom: "24px" }} />
 
         {/* Bottom */}
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: "0.8rem",
-            color: "var(--color-brand-muted)",
-          }}
-        >
-          {t.footerRights}
-        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px" }}>
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: "0.8rem",
+              color: "var(--color-brand-muted)",
+            }}
+          >
+            {t.footerRights}
+          </p>
+          {/* Admin access — subtle, for author use only */}
+          <Link
+            href="/admin"
+            style={{
+              fontSize: "0.65rem",
+              color: "transparent",
+              textDecoration: "none",
+              userSelect: "none",
+              opacity: 0.15,
+              transition: "opacity 0.3s ease",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.15")}
+            title="Author Admin"
+          >
+            ✦
+          </Link>
+        </div>
       </div>
     </footer>
   );

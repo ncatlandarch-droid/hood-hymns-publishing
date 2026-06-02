@@ -75,16 +75,7 @@ export const products: Product[] = [
     collection: "The Harmonies of Hope",
     productType: "digital",
   },
-  {
-    id: "harmonies-v1-digital-deal",
-    title: "The Harmonies of Hope — Digital Edition",
-    type: "E-Book · Vol. I",
-    price: "$9.99",
-    image: "/book-harmonies-v1.png",
-    description: `The debut novel in digital format by ${AUTHOR}. Instant download. DRM-free PDF. Read on any device — Kindle, iPad, tablet, or computer. Faith, family, and music from the heart of Detroit.`,
-    collection: "The Harmonies of Hope",
-    productType: "digital",
-  },
+
   {
     id: "harmonies-character-tee",
     title: "Harmonies Character Tee",

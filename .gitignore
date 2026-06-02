@@ -36,3 +36,8 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# Audiobook WAV files are too large for GitHub (500MB+) — deployed via Netlify
+public/audiobook/*.wav
+# Build artifacts
+public/favicon-source.png

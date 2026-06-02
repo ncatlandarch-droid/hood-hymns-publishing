@@ -15,7 +15,7 @@ export default function BookExcerpt({ excerpt }: BookExcerptProps) {
   const translated = excerptTranslations[excerpt.id]?.[locale];
   const bookTitle = translated?.bookTitle || excerpt.bookTitle;
   const chapterTitle = translated?.chapterTitle || excerpt.chapterTitle;
-  const text = excerpt.text; // Use full text from content.ts
+  const text = translated?.text || excerpt.text; // Use translated text, fall back to English
 
   const firstLetter = text.charAt(0);
   const restOfText = text.slice(1);

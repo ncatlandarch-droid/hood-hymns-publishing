@@ -5,7 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ExitIntentPopup from "@/components/ui/ExitIntentPopup";
 
-const SITE_URL = "https://hood-hymns-publishing.netlify.app";
+const SITE_URL = "https://hoodhymns.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

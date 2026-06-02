@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
+import { getStore } from "@netlify/blobs";
 
-const TESTIMONIAL_PATH = path.join(process.cwd(), "public", "testimonials", "latest.json");
+// ─────────────────────────────────────────────────────────────────────────────
+// Testimonial API — Hood Hymns Publishing
+//
+// Uses Netlify Blobs for persistent storage (survives serverless restarts).
+// POST: Accept audio/text → transcribe → translate → store
+// GET:  Return latest testimonial JSON
+// ─────────────────────────────────────────────────────────────────────────────
 
-async function ensureDir() {
-  const dir = path.dirname(TESTIMONIAL_PATH);
-  await fs.mkdir(dir, { recursive: true });
-}
-
-async function callGemini(apiKey: string, contents: any[]): Promise<string> {
+async function callGemini(apiKey: string, contents: object[]): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const res = await fetch(url, {
     method: "POST",
@@ -26,8 +26,8 @@ async function callGemini(apiKey: string, contents: any[]): Promise<string> {
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const audioFile = formData.get("audio") as File | null;
+    const formData    = await req.formData();
+    const audioFile   = formData.get("audio") as File | null;
     const textMessage = (formData.get("text") as string) || "";
 
     if (!audioFile && !textMessage) {
@@ -39,31 +39,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 });
     }
 
-    let audioBase64 = "";
-    let englishText = textMessage;
+    let audioBase64  = "";
+    let englishText  = textMessage;
 
-    // If audio is provided, convert to base64 and transcribe
+    // ── Transcribe audio if provided ─────────────────────────────────────────
     if (audioFile) {
       const arrayBuffer = await audioFile.arrayBuffer();
-      audioBase64 = Buffer.from(arrayBuffer).toString("base64");
+      audioBase64       = Buffer.from(arrayBuffer).toString("base64");
+      const mimeType    = audioFile.type || "audio/webm";
 
-      // Determine MIME type
-      const mimeType = audioFile.type || "audio/webm";
-
-      // Transcribe audio using Gemini
       const transcription = await callGemini(apiKey, [
-        {
-          inline_data: {
-            mime_type: mimeType,
-            data: audioBase64,
-          },
-        },
-        {
-          text: "Transcribe this audio recording exactly as spoken. Return only the transcription text.",
-        },
+        { inline_data: { mime_type: mimeType, data: audioBase64 } },
+        { text: "Transcribe this audio recording exactly as spoken. Return only the transcription text." },
       ]);
-
-      // Combine transcription with optional written text
       englishText = transcription + (textMessage ? `\n\n${textMessage}` : "");
     }
 
@@ -71,55 +59,45 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No content to process" }, { status: 400 });
     }
 
-    // Translate to Spanish
-    const spanishText = await callGemini(apiKey, [
-      {
-        text: `Translate the following English text to Spanish. Return only the translation.\n\n${englishText}`,
-      },
+    // ── Translate to Spanish + Chinese via Gemini ─────────────────────────────
+    const [spanishText, chineseText] = await Promise.all([
+      callGemini(apiKey, [{ text: `Translate the following English text to Spanish. Return only the translation.\n\n${englishText}` }]),
+      callGemini(apiKey, [{ text: `Translate the following English text to Chinese (Simplified). Return only the translation.\n\n${englishText}` }]),
     ]);
 
-    // Translate to Chinese
-    const chineseText = await callGemini(apiKey, [
-      {
-        text: `Translate the following English text to Chinese. Return only the translation.\n\n${englishText}`,
-      },
-    ]);
-
-    // Build testimonial object
+    // ── Build testimonial object ──────────────────────────────────────────────
     const testimonial = {
-      date: new Date().toISOString().split("T")[0],
-      audioBase64: audioBase64 || null,
+      date:          new Date().toISOString().split("T")[0],
+      audioBase64:   audioBase64 || null,
       audioMimeType: audioFile?.type || null,
-      text: {
-        en: englishText,
-        es: spanishText,
-        zh: chineseText,
-      },
-      createdAt: new Date().toISOString(),
+      text: { en: englishText, es: spanishText, zh: chineseText },
+      createdAt:     new Date().toISOString(),
     };
 
-    // Save to file
-    await ensureDir();
-    await fs.writeFile(TESTIMONIAL_PATH, JSON.stringify(testimonial, null, 2), "utf-8");
+    // ── Persist to Netlify Blobs (survives serverless restarts) ──────────────
+    const store = getStore("testimonials");
+    await store.setJSON("latest", testimonial);
 
     return NextResponse.json({ success: true, testimonial });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Internal server error";
     console.error("Testimonial POST error:", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
 export async function GET() {
   try {
-    await ensureDir();
-    const data = await fs.readFile(TESTIMONIAL_PATH, "utf-8");
-    const testimonial = JSON.parse(data);
-    return NextResponse.json(testimonial);
-  } catch (error: any) {
-    if (error.code === "ENOENT") {
+    const store       = getStore("testimonials");
+    const testimonial = await store.get("latest", { type: "json" });
+
+    if (!testimonial) {
       return NextResponse.json({ error: "No testimonial found" }, { status: 404 });
     }
+    return NextResponse.json(testimonial);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Internal server error";
     console.error("Testimonial GET error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

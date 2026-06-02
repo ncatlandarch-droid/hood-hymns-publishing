@@ -13,8 +13,10 @@ const STARTER_PROMPTS = [
   "What do you say to someone who feels lost?",
 ];
 
-const INITIAL_MESSAGE = {
-  role: "chris" as const,
+type Message = { role: "chris" | "user"; content: string };
+
+const INITIAL_MESSAGE: Message = {
+  role: "chris",
   content: "Hey — glad you came through. Pull up a chair. What's on your heart?",
 };
 
@@ -23,7 +25,7 @@ export default function AboutPage() {
 
   // Chat state
   const [chatOpen, setChatOpen] = useState(false);
-  const [messages, setMessages] = useState([INITIAL_MESSAGE]);
+  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);

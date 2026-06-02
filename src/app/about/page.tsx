@@ -35,9 +35,16 @@ export default function AboutPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Scroll ONLY the chat box — not the whole page
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    // Scroll to the START of Chris's latest reply so user sees beginning of response
+    const allMsgs = container.querySelectorAll('[data-role]');
+    const lastChrisMsg = Array.from(allMsgs).reverse()
+      .find(el => el.getAttribute('data-role') === 'chris') as HTMLElement | undefined;
+    if (lastChrisMsg) {
+      container.scrollTop = lastChrisMsg.offsetTop - 12;
+    } else {
+      container.scrollTop = container.scrollHeight;
     }
   }, [messages, isThinking]);
 
@@ -220,7 +227,7 @@ export default function AboutPage() {
 
             {/* Chat panel — slides open below the photo */}
             <div style={{
-              maxHeight: chatOpen ? "420px" : "0px",
+              maxHeight: chatOpen ? "520px" : "0px",
               overflow: "hidden",
               transition: "max-height 0.45s ease",
               borderRadius: "0 0 12px 12px",
@@ -232,9 +239,9 @@ export default function AboutPage() {
                 borderRadius: "0 0 12px 12px",
               }}>
                 {/* Messages */}
-                <div ref={messagesContainerRef} style={{ height: "240px", overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div ref={messagesContainerRef} style={{ height: "300px", overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
                   {messages.map((msg, i) => (
-                    <div key={i} style={{
+                    <div key={i} data-role={msg.role} style={{
                       maxWidth: "90%",
                       alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
                       padding: "10px 14px",

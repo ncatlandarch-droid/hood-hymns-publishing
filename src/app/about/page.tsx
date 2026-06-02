@@ -4,9 +4,10 @@ import { useI18n } from "@/context/I18nContext";
 import { authorBio } from "@/data/content";
 import { seriesList } from "@/data/store";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
+import { seriesTranslations } from "@/data/i18n";
 
 export default function AboutPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <div style={{ paddingTop: "100px", paddingBottom: "80px" }}>
@@ -169,6 +170,9 @@ export default function AboutPage() {
           </div>
         </div>
 
+        {/* C.D. Howell AI Avatar — right after bio */}
+        <AuthorAvatar />
+
         {/* Series overview */}
         <section>
           <h2
@@ -183,34 +187,38 @@ export default function AboutPage() {
             <span className="text-gradient-copper">{t.theSeries}</span>
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-            {seriesList.filter((s) => s.synopsis).map((series) => (
-              <div key={series.id} className="brutalist-card" style={{ padding: "32px" }}>
-                <h3
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.2rem",
-                    fontWeight: 700,
-                    marginBottom: "8px",
-                    color: series.accentColor,
-                  }}
-                >
-                  {series.name}
-                </h3>
-                <p style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "var(--color-brand-text)", marginBottom: "12px" }}>
-                  {series.synopsis}
-                </p>
-                {series.upcoming && (
-                  <p style={{ fontSize: "0.75rem", color: "var(--color-brand-copper)", fontWeight: 600 }}>
-                    {series.upcoming}
+            {seriesList.filter((s) => s.synopsis).map((series) => {
+              const st = seriesTranslations[series.id]?.[locale];
+              const seriesName = st?.name || series.name;
+              const seriesSynopsis = st?.synopsis || series.synopsis;
+              const seriesUpcoming = st?.upcoming || series.upcoming;
+              return (
+                <div key={series.id} className="brutalist-card" style={{ padding: "32px" }}>
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.2rem",
+                      fontWeight: 700,
+                      marginBottom: "8px",
+                      color: series.accentColor,
+                    }}
+                  >
+                    {seriesName}
+                  </h3>
+                  <p style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "var(--color-brand-text)", marginBottom: "12px" }}>
+                    {seriesSynopsis}
                   </p>
-                )}
-              </div>
-            ))}
+                  {seriesUpcoming && (
+                    <p style={{ fontSize: "0.75rem", color: "var(--color-brand-copper)", fontWeight: 600 }}>
+                      {seriesUpcoming}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 
-        {/* C.D. Howell AI Avatar */}
-        <AuthorAvatar />
 
       </div>
 

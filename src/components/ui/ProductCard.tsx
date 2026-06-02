@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useI18n } from "@/context/I18nContext";
+import { productTranslations } from "@/data/i18n";
 
 export interface Product {
   id: string;
@@ -26,8 +27,12 @@ export default function ProductCard({
   addToCartLabel = "Add to Cart",
   notifyLabel = "Notify Me",
 }: ProductCardProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [loading, setLoading] = useState(false);
+  const trans = productTranslations[product.id]?.[locale];
+  const title = trans?.title || product.title;
+  const type = trans?.type || product.type;
+  const description = trans?.description || product.description;
   const isComingSoon =
     (product.image.includes("v2") && product.collection === "The Prodigal Block") ||
     product.id.includes("coming-soon");
@@ -174,7 +179,7 @@ export default function ProductCard({
             fontWeight: 600,
           }}
         >
-          {product.type}
+          {type}
         </p>
         {/* Instant Download info for digital products */}
         {isDigital && !isComingSoon && (
@@ -207,7 +212,7 @@ export default function ProductCard({
             lineHeight: 1.3,
           }}
         >
-          {product.title}
+          {title}
         </h3>
         <p
           style={{
@@ -217,9 +222,9 @@ export default function ProductCard({
             lineHeight: 1.6,
           }}
         >
-          {product.description.length > 120
-            ? product.description.substring(0, 120) + "…"
-            : product.description}
+          {description.length > 120
+            ? description.substring(0, 120) + "…"
+            : description}
         </p>
         <div
           style={{

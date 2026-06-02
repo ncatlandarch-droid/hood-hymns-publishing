@@ -1163,3 +1163,117 @@ export const excerptLabels: Record<Locale, { excerpt: string; continueReading: s
   es: { excerpt: "Extracto", continueReading: "Seguir leyendo…", getBook: "Obtener el Libro" },
   zh: { excerpt: "摘录", continueReading: "继续阅读…", getBook: "获取书籍" },
 };
+
+// ── Product translations ─────────────────────────────────────────────────────
+export const productTranslations: Record<string, Partial<Record<Locale, { title: string; type: string; description: string }>>> = {
+  "harmonies-v1-physical": {
+    es: { title: "Las Armonías de la Esperanza", type: "Libro de Bolsillo · Vol. I", description: "La novela debut de C.D. Howell. Un joven en Detroit descubre que la música, la fe y la familia son los instrumentos que Dios usa para componer tu propósito. Publicado por Hood Hymns Publishing." },
+    zh: { title: "希望的和声", type: "平装书 · 第一卷", description: "C.D. Howell的首部小说。底特律的一个年轻人发现，音乐、信仰和家庭是上帝用来谱写你人生目的的乐器。由Hood Hymns Publishing出版。2026年。" },
+  },
+  "harmonies-v1-digital": {
+    es: { title: "Las Armonías de la Esperanza", type: "E-Book · Vol. I", description: "La edición digital completa de C.D. Howell. EPUB y PDF sin DRM. Compatible con Kindle, Apple Books, Kobo y todos los lectores principales. Entrega instantánea." },
+    zh: { title: "希望的和声", type: "电子书 · 第一卷", description: "C.D. Howell的完整数字版。无DRM的EPUB和PDF。兼容Kindle、Apple Books、Kobo及所有主流阅读器。即时配送。" },
+  },
+  "harmonies-character-tee": {
+    es: { title: "Camiseta Personaje Armonías", type: "Ropa · Edición Limitada", description: "Camiseta negra premium vintage. Gráfico original de un joven trombonista de la novela — serigrafía en cobre y púrpura. Talla normal. Merchandising oficial de C.D. Howell." },
+    zh: { title: "和声角色T恤", type: "服装 · 限量版", description: "高级复古水洗黑色T恤。小说中年轻长号手的原创角色图案——铜色和皇家紫色丝网印刷。正常版型。C.D. Howell官方周边。" },
+  },
+  "prodigal-v1-physical": {
+    es: { title: "El Bloque Pródigo: Frecuencia Perdida", type: "Libro de Bolsillo · Vol. I", description: "El primer libro de El Bloque Pródigo de C.D. Howell. Marcus eligió las calles sobre el santuario — esta es la historia de su largo camino de regreso a la gracia. 285 páginas." },
+    zh: { title: "浪子街区：失落的频率", type: "平装书 · 第一卷", description: "C.D. Howell《浪子街区》第一册。马库斯选择了街头而非圣殿——这是他漫长的回归之路。底特律救赎故事。285页。" },
+  },
+  "prodigal-v1-coming-soon-digital": {
+    es: { title: "El Bloque Pródigo: Frecuencia Perdida — Edición Digital", type: "E-Book · Vol. I", description: "El Bloque Pródigo en formato digital de C.D. Howell. PDF sin DRM. Léelo en cualquier dispositivo. Saga de redención en Detroit — próximamente disponible." },
+    zh: { title: "浪子街区：失落的频率 — 数字版", type: "电子书 · 第一卷", description: "C.D. Howell的《浪子街区》数字版。无DRM的PDF。在任何设备上阅读。底特律原始救赎故事——即将上线即时下载。" },
+  },
+  "prodigal-v2-physical": {
+    es: { title: "El Bloque Pródigo: Regreso a Casa", type: "Libro de Bolsillo · Vol. II", description: "El segundo libro de El Bloque Pródigo de C.D. Howell. El camino de regreso es más largo que el de salida. Marcus enfrenta la caminata más difícil de su vida. 310 páginas." },
+    zh: { title: "浪子街区：回家", type: "平装书 · 第二卷", description: "C.D. Howell《浪子街区》第二册。回家的路比出走的路更长。马库斯面临人生中最艰难的行程——穿过他曾离开的教堂大门。310页。" },
+  },
+  "core-hoodie": {
+    es: { title: "Sudadera Hood Hymns Studio", type: "Ropa · Premium", description: "Sudadera pesada 400g morada profunda. Logo Hood Hymns Publishing bordado en cobre en el pecho. Puños y dobladillo reforzados. Producción limitada." },
+    zh: { title: "Hood Hymns Studio连帽衫", type: "服装 · 高级", description: "400克重型深紫色连帽衫。胸前铜色刺绣Hood Hymns Publishing徽标。加固袖口和下摆。限量生产。" },
+  },
+  "core-tshirt": {
+    es: { title: "Camiseta Studio Signature", type: "Ropa · Premium", description: "Camiseta negra pesada 100% algodón. Marca oficial Hood Hymns Publishing en blanco y cobre. Corte oversized. Pre-lavada y pre-encogida." },
+    zh: { title: "Studio Signature T恤", type: "服装 · 高级", description: "100%棉重型黑色T恤。官方Hood Hymns Publishing白色和铜色标志。宽松剪裁。预洗预缩。" },
+  },
+  "core-snapback": {
+    es: { title: "Gorra Snapback Studio", type: "Accesorios", description: "Gorra estructurada de 6 paneles en negro total. Monograma HH bordado en cobre en la parte delantera. Ala plana, cierre snap ajustable. Talla única." },
+    zh: { title: "Studio Snapback棒球帽", type: "配饰", description: "结构化6片式全黑棒球帽。前片铜色刺绣HH字母组合。平檐，可调节卡扣。均码。" },
+  },
+  "b2b-hoodie": {
+    es: { title: "Sudadera B2B Logo", type: "Ropa · B2B", description: "Sudadera negra pesada 400g con 'BLOCK TO BLESSING' en cobre en el pecho. Detalle de cruz. Puños reforzados. Corte streetwear oversized. Edición limitada." },
+    zh: { title: "B2B Logo连帽衫", type: "服装 · B2B", description: "400克重型黑色连帽衫，胸前铜色大字'BLOCK TO BLESSING'。十字徽章细节。加固袖口和下摆。街头超大版型。限量发售。" },
+  },
+  "b2b-tee": {
+    es: { title: "Camiseta B2B Signature", type: "Ropa · B2B", description: "Camiseta negra pesada con el emblema circular B2B — logo en cobre con detalle de cruz. 100% algodón. Pre-lavada. Talla normal. Oficial Block to Blessing." },
+    zh: { title: "B2B Signature T恤", type: "服装 · B2B", description: "高级黑色重型T恤，印有B2B圆形徽章——铜色十字细节徽标。100%棉。预洗。正常版型。官方Block to Blessing。" },
+  },
+  "b2b-cap": {
+    es: { title: "Gorra Bordada B2B", type: "Accesorios · B2B", description: "Gorra snapback estructurada en morado oscuro. Monograma B2B entrelazado bordado en cobre en el panel frontal. Ala plana, cierre snap ajustable. Talla única." },
+    zh: { title: "B2B刺绣棒球帽", type: "配饰 · B2B", description: "深紫色结构化6片式Snapback帽。前片铜色刺绣B2B交错字母。平檐，可调节卡扣。均码。" },
+  },
+  "b2b-crewneck": {
+    es: { title: "Sudadera Clásica B2B", type: "Ropa · B2B", description: "Sudadera negra premium 380g con discreto monograma B2B bordado en cobre en el pecho izquierdo. Minimal, limpio, ideal para capas. Puños y cintura acanalados." },
+    zh: { title: "B2B经典圆领卫衣", type: "服装 · B2B", description: "380克高级黑色圆领卫衣，左胸精致铜色B2B刺绣字母组合。简约低调，适合叠穿。罗纹袖口和腰带。" },
+  },
+  "b2b-joggers": {
+    es: { title: "Pantalón Jogger B2B", type: "Ropa · B2B", description: "Pantalón jogger negro premium con 'BLOCK TO BLESSING' en cobre en la pierna izquierda. Puños elásticos, cintura con cordón, bolsillos con cierre." },
+    zh: { title: "B2B慢跑裤", type: "服装 · B2B", description: "高级棉混纺黑色慢跑裤，左腿铜色'BLOCK TO BLESSING'字样。弹性袖口，抽绳腰带，拉链口袋。" },
+  },
+  "detroit-choir-tee": {
+    es: { title: "Camiseta Detroit Choir", type: "Ropa · B2B", description: "Camiseta negra con diseño artístico del horizonte de Detroit y silueta de coro en morado y cobre. Texto 'DETROIT • HOOD HYMNS'. Fe urbana meets streetwear." },
+    zh: { title: "底特律唱诗班T恤", type: "服装 · B2B", description: "高级黑色T恤，底特律天际线艺术图案与紫铜色唱诗班剪影设计。'DETROIT • HOOD HYMNS'文字。都市信仰与街头时尚。" },
+  },
+};
+
+// ── Series translations ──────────────────────────────────────────────────────
+export const seriesTranslations: Record<string, Partial<Record<Locale, { name: string; tagline: string; synopsis: string; upcoming: string }>>> = {
+  "harmonies-of-hope": {
+    es: {
+      name: "Las Armonías de la Esperanza",
+      tagline: "La serie debut de C.D. Howell. Un chico de Detroit descubre su propósito a través de la música, la fe y la familia — desde el apartamento familiar hasta el podio del coro.",
+      synopsis: "Chris es uno de cinco hermanos que crece en un animado apartamento de dos familias en el corazón de Detroit. Entre las risas de los primos, los ritmos de la banda del colegio y los sermones que moldearon su alma, descubre que la música no es solo algo que disfruta — es parte de su llamado. Las Armonías de la Esperanza sigue a Chris desde la escuela primaria hasta el podio del coro. Por C.D. Howell.",
+      upcoming: "Vol. II — El Podio del Coro · Próximamente 2026",
+    },
+    zh: {
+      name: "希望的和声",
+      tagline: "C.D. Howell的首部系列。底特律的一个男孩通过音乐、信仰和家庭发现自己的人生目的——从两户式公寓到唱诗班指挥台。",
+      synopsis: "克里斯是底特律一栋热闹的两户式公寓里五个兄弟姐妹之一。在表兄弟的笑声、音乐会乐队的节奏和塑造他灵魂的布道之间，他发现音乐不仅仅是他享受的东西——它是他使命的一部分。《希望的和声》跟随克里斯从小学走到唱诗班指挥台。作者：C.D. Howell。",
+      upcoming: "第二卷 — 唱诗班指挥台 · 即将推出2026",
+    },
+  },
+  "prodigal-block": {
+    es: {
+      name: "El Bloque Pródigo",
+      tagline: "No todos escucharon el coro la primera vez. Una saga de redención sobre el largo camino de regreso a la fe.",
+      synopsis: "Marcus creció en los mismos bloques de Detroit. Escuchó los mismos sermones. Conocía al mismo Dios. Pero cuando las calles lo llamaron, respondió. El Bloque Pródigo sigue a los que se perdieron, los que cayeron y los que lucharon para volver. Porque el GPS de Dios nunca deja de recalcular. Por C.D. Howell.",
+      upcoming: "Vol. II — Regreso a Casa · Próximamente 2026",
+    },
+    zh: {
+      name: "浪子街区",
+      tagline: "不是每个人第一次都听到了唱诗班的声音。一个关于漫长回归信仰之路的救赎故事。",
+      synopsis: "马库斯在底特律同样的街区长大。听过同样的布道。认识同样的上帝。但当街头呼唤他时，他答应了。《浪子街区》跟随那些迷途者、跌倒者和奋力回归者。因为上帝的导航永远不会停止重新计算。作者：C.D. Howell。",
+      upcoming: "第二卷 — 回家 · 即将推出2026",
+    },
+  },
+  "studio-core": {
+    es: { name: "Mercancía del Estudio", tagline: "Mercancía oficial del Hood Hymns Studio de C.D. Howell. Tirada limitada. Hecho para inspirar.", synopsis: "", upcoming: "" },
+    zh: { name: "工作室周边", tagline: "C.D. Howell的Hood Hymns Studio官方周边。限量发售。为激励而生。", synopsis: "", upcoming: "" },
+  },
+  "block-to-blessing": {
+    es: {
+      name: "Block to Blessing",
+      tagline: "De las calles al santuario. Usado por los fieles. Hecho para la cultura.",
+      synopsis: "B2B es más que una línea de ropa — es un testimonio que puedes llevar puesto. Nacido del mismo fuego creativo que alimenta los libros, Block to Blessing representa el viaje de la lucha a la salvación. Calidad premium. Lanzamientos limitados. La fe primero.",
+      upcoming: "B2B Summer '26 Drop · Próximamente",
+    },
+    zh: {
+      name: "Block to Blessing",
+      tagline: "从街头到圣所。由信徒穿着。为文化而生。",
+      synopsis: "B2B不仅仅是一个服装品牌——它是你可以穿在身上的见证。诞生于与书籍相同的创作火焰，Block to Blessing代表从挣扎到救赎的旅程。高级品质。限量发售。信仰至上。",
+      upcoming: "B2B 2026夏季发售 · 即将推出",
+    },
+  },
+};

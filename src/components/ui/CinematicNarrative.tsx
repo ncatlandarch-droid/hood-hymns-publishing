@@ -54,6 +54,20 @@ export default function CinematicNarrative({
     };
   }, [isPlaying, updateProgress]);
 
+  // When the audio source changes (e.g. language switch), stop playback,
+  // reload the new file, and reset all player state.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.load(); // Forces the browser to load the new src
+    setIsPlaying(false);
+    setProgress(0);
+    setCurrentTime(0);
+    setDuration(0);
+    setCurrentScene(0);
+  }, [audioSrc]);
+
   const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;

@@ -44,3 +44,11 @@ public/favicon-source.png
 
 # Large WAV audiobook files (use MP3 instead)
 public/audiobook/*.wav
+
+# Extra env protection
+.env.production
+.env.staging
+.env.development
+*.key
+*.pem
+*.secret

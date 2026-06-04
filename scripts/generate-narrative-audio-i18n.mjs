@@ -22,7 +22,7 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 const OUTPUT_DIR = path.join(PROJECT_ROOT, 'public', 'audio');
 
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
-const TEXT_MODEL = 'gemini-1.5-flash';
+const TEXT_MODEL = 'gemini-2.5-flash';
 const TTS_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:generateContent`;
 const TEXT_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent`;
 const SAMPLE_RATE = 24000;

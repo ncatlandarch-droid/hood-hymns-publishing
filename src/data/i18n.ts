@@ -270,6 +270,7 @@ export interface UIStrings {
   // Limited Edition Badge
   limitedEdition: string;
   firstRun: string;
+  selectSize: string;
   // Ebook / Digital Downloads
   ebookReady: string;
   downloadNow: string;
@@ -501,6 +502,7 @@ export const translations: Record<Locale, UIStrings> = {
     // Limited Edition Badge
     limitedEdition: "Limited Edition",
     firstRun: "First Run",
+    selectSize: "Select Size",
     // Ebook / Digital Downloads
     ebookReady: "Your Ebook Is Ready!",
     downloadNow: "Download Now",
@@ -731,6 +733,7 @@ export const translations: Record<Locale, UIStrings> = {
     // Limited Edition Badge
     limitedEdition: "Edición Limitada",
     firstRun: "Primera Tirada",
+    selectSize: "Seleccionar Talla",
     // Ebook / Digital Downloads
     ebookReady: "¡Tu Libro Digital Está Listo!",
     downloadNow: "Descargar Ahora",
@@ -961,6 +964,7 @@ export const translations: Record<Locale, UIStrings> = {
     // Limited Edition Badge
     limitedEdition: "限量版",
     firstRun: "首批发售",
+    selectSize: "选择尺码",
     // Ebook / Digital Downloads
     ebookReady: "您的电子书已准备好！",
     downloadNow: "立即下载",

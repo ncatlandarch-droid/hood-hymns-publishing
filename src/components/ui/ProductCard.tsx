@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useI18n } from "@/context/I18nContext";
 import { productTranslations } from "@/data/i18n";
 
@@ -29,6 +29,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { t, locale } = useI18n();
   const [loading, setLoading] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const trans = productTranslations[product.id]?.[locale];
   const title = trans?.title || product.title;
   const type = trans?.type || product.type;
@@ -38,9 +39,21 @@ export default function ProductCard({
     product.id.includes("coming-soon");
   const isMerch = !product.type.includes("Paperback") && !product.type.includes("E-Book");
   const isDigital = product.productType === "digital";
+  const isAccessory = product.type.includes("Accessories") || product.type.includes("Snapback") || product.type.includes("Cap");
+  const needsSize = isMerch && !isAccessory;
+  const sizeOptions = ["S", "M", "L", "XL", "2XL"];
+
+  // Auto-select "One Size" for accessories
+  useEffect(() => {
+    if (isAccessory && isMerch) setSelectedSize("One Size");
+  }, [isAccessory, isMerch]);
 
   async function handleCheckout() {
     if (loading || isComingSoon) return;
+    if (needsSize && !selectedSize) {
+      alert(t.selectSize || "Please select a size");
+      return;
+    }
     setLoading(true);
 
     // Use direct Stripe payment link if available
@@ -50,15 +63,17 @@ export default function ProductCard({
     }
 
     try {
+      const sizeLabel = selectedSize ? ` (${selectedSize})` : "";
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: product.id,
-          title: `${product.title} — ${product.type}`,
+          title: `${product.title} — ${product.type}${sizeLabel}`,
           price: product.price,
           image: product.image,
           type: product.productType ?? "physical",
+          size: selectedSize || undefined,
         }),
       });
 
@@ -226,6 +241,66 @@ export default function ProductCard({
             ? description.substring(0, 120) + "…"
             : description}
         </p>
+        {/* Size Selector — apparel merch only */}
+        {needsSize && !isComingSoon && (
+          <div style={{ marginBottom: "12px" }}>
+            <p
+              style={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: selectedSize ? "var(--color-brand-copper)" : "rgba(255,100,100,0.9)",
+                marginBottom: "8px",
+              }}
+            >
+              {selectedSize ? `Size: ${selectedSize}` : (t.selectSize || "Select Size")}
+            </p>
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              {sizeOptions.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => setSelectedSize(size)}
+                  style={{
+                    padding: "6px 12px",
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.05em",
+                    border: selectedSize === size
+                      ? "2px solid var(--color-brand-copper)"
+                      : "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: "4px",
+                    background: selectedSize === size
+                      ? "rgba(184, 115, 51, 0.2)"
+                      : "rgba(255,255,255,0.05)",
+                    color: selectedSize === size
+                      ? "var(--color-brand-copper)"
+                      : "rgba(255,255,255,0.6)",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* One Size label for accessories */}
+        {isAccessory && isMerch && !isComingSoon && (
+          <p
+            style={{
+              fontSize: "0.7rem",
+              fontWeight: 600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.5)",
+              marginBottom: "12px",
+            }}
+          >
+            ✓ One Size
+          </p>
+        )}
         <div
           style={{
             display: "flex",

@@ -41,3 +41,6 @@ next-env.d.ts
 public/audiobook/*.wav
 # Build artifacts
 public/favicon-source.png
+
+# Large WAV audiobook files (use MP3 instead)
+public/audiobook/*.wav

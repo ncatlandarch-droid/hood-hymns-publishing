@@ -19,16 +19,16 @@ interface Chapter {
 }
 
 const CHAPTERS: Chapter[] = [
-  { id: "intro",      number: 0, title: "Introduction",                   src: "/audiobook/intro.wav",       free: true  },
-  { id: "chapter-01", number: 1, title: "Chapter 1 — The Block",          src: "/audiobook/chapter-01.wav",  free: true  },
-  { id: "chapter-02", number: 2, title: "Chapter 2 — Sunday Morning",     src: "/audiobook/chapter-02.wav",  free: false },
-  { id: "chapter-03", number: 3, title: "Chapter 3 — The Hustle",         src: "/audiobook/chapter-03.wav",  free: false },
-  { id: "chapter-04", number: 4, title: "Chapter 4 — Crossroads",         src: "/audiobook/chapter-04.wav",  free: false },
-  { id: "chapter-05", number: 5, title: "Chapter 5 — Family Ties",        src: "/audiobook/chapter-05.wav",  free: false },
-  { id: "chapter-06", number: 6, title: "Chapter 6 — The Hymn",           src: "/audiobook/chapter-06.wav",  free: false },
-  { id: "chapter-07", number: 7, title: "Chapter 7 — Redemption Road",    src: "/audiobook/chapter-07.wav",  free: false },
-  { id: "chapter-08", number: 8, title: "Chapter 8 — Coming Home",        src: "/audiobook/chapter-08.wav",  free: false },
-  { id: "chapter-09", number: 9, title: "Chapter 9 — Harmonies of Hope",  src: "/audiobook/chapter-09.wav",  free: false },
+  { id: "intro",      number: 0, title: "Introduction",                   src: "/audiobook/intro.mp3",       free: true  },
+  { id: "chapter-01", number: 1, title: "Chapter 1 — The Block",          src: "/audiobook/chapter-01.mp3",  free: true  },
+  { id: "chapter-02", number: 2, title: "Chapter 2 — Sunday Morning",     src: "/audiobook/chapter-02.mp3",  free: false },
+  { id: "chapter-03", number: 3, title: "Chapter 3 — The Hustle",         src: "/audiobook/chapter-03.mp3",  free: false },
+  { id: "chapter-04", number: 4, title: "Chapter 4 — Crossroads",         src: "/audiobook/chapter-04.mp3",  free: false },
+  { id: "chapter-05", number: 5, title: "Chapter 5 — Family Ties",        src: "/audiobook/chapter-05.mp3",  free: false },
+  { id: "chapter-06", number: 6, title: "Chapter 6 — The Hymn",           src: "/audiobook/chapter-06.mp3",  free: false },
+  { id: "chapter-07", number: 7, title: "Chapter 7 — Redemption Road",    src: "/audiobook/chapter-07.mp3",  free: false },
+  { id: "chapter-08", number: 8, title: "Chapter 8 — Coming Home",        src: "/audiobook/chapter-08.mp3",  free: false },
+  { id: "chapter-09", number: 9, title: "Chapter 9 — Harmonies of Hope",  src: "/audiobook/chapter-09.mp3",  free: false },
 ];
 
 function formatTime(seconds: number): string {

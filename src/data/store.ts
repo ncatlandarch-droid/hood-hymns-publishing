@@ -15,17 +15,17 @@ export const seriesList: SeriesMeta[] = [
   {
     id: "harmonies-of-hope",
     name: "The Harmonies of Hope",
-    tagline: "The debut series by C.D. Howell. A Detroit boy discovers purpose through music, faith, and family — from the two-family flat to the choir stand.",
-    synopsis: `Chris is one of five siblings growing up in a lively two-family flat in the heart of Detroit. Between the laughter of cousins, the rhythms of concert band, and the sermons that shaped his soul, he discovers that music isn't just something he enjoys — it's part of his calling. The Harmonies of Hope follows Chris from elementary school to the choir stand, through moves, baptism, and the moment a youth overseer placed him in front of the choir and said, "Now direct." By C.D. Howell.`,
+    tagline: "Series One — A Hood Hymns Publishing Original. A Detroit boy discovers purpose through music, faith, and family — from the two-family flat to the choir stand.",
+    synopsis: `James is one of five siblings growing up in a lively two-family flat in the heart of Detroit. Between the laughter of cousins, the rhythms of concert band, and the sermons that shaped his soul, he discovers that music isn't just something he enjoys — it's part of his calling. The Harmonies of Hope follows James from elementary school to the choir stand, through moves, baptism, and the moment a youth overseer placed him in front of the choir and said, "Now direct." By C.D. Howell.`,
     upcoming: "Vol. II — The Choir Stand · Coming 2026",
     accentColor: "var(--color-brand-copper)",
   },
   {
     id: "prodigal-block",
     name: "The Prodigal Block",
-    tagline: "Not everyone heard the choir the first time. A gritty redemption saga about the long road back to faith.",
+    tagline: "Series Two — A Hood Hymns Publishing Original. Not everyone heard the choir the first time. A gritty redemption saga about the long road back to faith.",
     synopsis: `Marcus grew up in the same Detroit blocks. Heard the same sermons. Knew the same God. But when the streets called, he answered. The Prodigal Block follows the ones who wandered, the ones who fell, and the ones who fought their way back. Because God's GPS doesn't stop recalculating — no matter how far you drive in the wrong direction.`,
-    upcoming: "Vol. II — Coming Home · Coming 2026",
+    upcoming: "Vol. II — Coming Home · Coming 2026  |  Vol. III — Planned",
     accentColor: "var(--color-brand-primary)",
   },
   {

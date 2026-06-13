@@ -108,7 +108,7 @@ export const products: Product[] = [
     image: "/merch-real/merch-real-tshirt.png",
     description: `Premium garment-dyed heavyweight tee. Official Hood Hymns Publishing logo — open book, cross, and HH monogram in copper & white. Pre-shrunk, runs true to size.`,
     collection: "Hood Hymns Apparel",
-    paymentLink: "https://buy.stripe.com/14AdRa0qo49w1uB7MM9MY0h",
+    paymentLink: "https://hood-hymns-publishing.printful.me/",
     productType: "physical",
   },
   {
@@ -119,7 +119,7 @@ export const products: Product[] = [
     image: "/merch-real/merch-real-character.png",
     description: `Premium garment-dyed heavyweight tee. Original character graphic of a young trombonist from the novel — screen-printed in copper & royal purple. Official ${AUTHOR} merchandise.`,
     collection: "Hood Hymns Apparel",
-    paymentLink: "https://buy.stripe.com/4gM4gAa0YaxU6OVd769MY0j",
+    paymentLink: "https://hood-hymns-publishing.printful.me/",
     productType: "physical",
   },
   {
@@ -130,7 +130,7 @@ export const products: Product[] = [
     image: "/merch-real/merch-real-b2b-tee.png",
     description: `Premium garment-dyed heavyweight tee featuring the B2B circular badge — copper logo with cross detail. Block to Blessing. Faith first. Runs true to size.`,
     collection: "Hood Hymns Apparel",
-    paymentLink: "https://buy.stripe.com/bJe5kE1useOa5KR4AA9MY0l",
+    paymentLink: "https://hood-hymns-publishing.printful.me/",
     productType: "physical",
   },
   {
@@ -141,7 +141,7 @@ export const products: Product[] = [
     image: "/merch-real/merch-real-detroit.png",
     description: `Premium garment-dyed heavyweight tee with artistic Detroit skyline and choir silhouette design in purple & copper. 'DETROIT • HOOD HYMNS' text. Urban faith meets streetwear.`,
     collection: "Hood Hymns Apparel",
-    paymentLink: "https://buy.stripe.com/00w6oI1us49wddj8QQ9MY0o",
+    paymentLink: "https://hood-hymns-publishing.printful.me/",
     productType: "physical",
   },
 ];

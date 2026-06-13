@@ -285,6 +285,18 @@ export interface UIStrings {
   listenToAudiobook: string;
   chapter: string;
   autoAdvance: string;
+  // Coming Soon Banner
+  comingSoonLabel: string;
+  comingSoonHeading: string;
+  vol2Label: string;
+  vol2Title: string;
+  vol2Subtitle: string;
+  vol2Body: string;
+  vol3Label: string;
+  vol3Title: string;
+  vol3Subtitle: string;
+  vol3Body: string;
+  beOnTheLookout: string;
 }
 
 export const translations: Record<Locale, UIStrings> = {
@@ -517,6 +529,18 @@ export const translations: Record<Locale, UIStrings> = {
     listenToAudiobook: "Listen to the Audiobook",
     chapter: "Chapter",
     autoAdvance: "Auto-Advance",
+    // Coming Soon Banner
+    comingSoonLabel: "The Series Continues",
+    comingSoonHeading: "What's Next from Hood Hymns Publishing",
+    vol2Label: "Volume II · Coming Soon",
+    vol2Title: "The Harmonies of Hope Vol. 2",
+    vol2Subtitle: "Bad Decisions, But God",
+    vol2Body: "The story continues. Chris made it through the block — but the road ahead is full of choices that test everything he thought he believed. Sometimes God's loudest lessons come through our worst decisions.",
+    vol3Label: "Volume III · On the Horizon",
+    vol3Title: "The Harmonies of Hope Vol. 3",
+    vol3Subtitle: "Bent But Not Broken, Falling But Not Out",
+    vol3Body: "Be on the lookout. The saga isn't over. Life bends you, the streets test you, but grace has a way of catching you before you hit the ground.",
+    beOnTheLookout: "Stay Tuned",
   },
 
   es: {
@@ -748,6 +772,18 @@ export const translations: Record<Locale, UIStrings> = {
     listenToAudiobook: "Escuchar el Audiolibro",
     chapter: "Capítulo",
     autoAdvance: "Avance Automático",
+    // Coming Soon Banner
+    comingSoonLabel: "La Serie Continúa",
+    comingSoonHeading: "Lo Que Viene de Hood Hymns Publishing",
+    vol2Label: "Volumen II · Próximamente",
+    vol2Title: "Las Armonías de la Esperanza Vol. 2",
+    vol2Subtitle: "Malas Decisiones, Pero Dios",
+    vol2Body: "La historia continúa. Chris sobrevivió al barrio — pero el camino por delante está lleno de decisiones que ponen a prueba todo lo que creía. A veces las lecciones más fuertes de Dios vienen a través de nuestras peores decisiones.",
+    vol3Label: "Volumen III · En el Horizonte",
+    vol3Title: "Las Armonías de la Esperanza Vol. 3",
+    vol3Subtitle: "Doblado Pero No Roto, Cayendo Pero No Vencido",
+    vol3Body: "Estén atentos. La saga no ha terminado. La vida te dobla, las calles te prueban, pero la gracia tiene una forma de atraparte antes de que toques el suelo.",
+    beOnTheLookout: "Estén Atentos",
   },
 
   zh: {
@@ -979,6 +1015,18 @@ export const translations: Record<Locale, UIStrings> = {
     listenToAudiobook: "聆听有声书",
     chapter: "章节",
     autoAdvance: "自动播放",
+    // Coming Soon Banner
+    comingSoonLabel: "系列继续",
+    comingSoonHeading: "Hood Hymns Publishing 即将推出",
+    vol2Label: "第二卷 · 即将推出",
+    vol2Title: "希望的和声 第二卷",
+    vol2Subtitle: "错误的决定，但有上帝",
+    vol2Body: "故事还在继续。克里斯走过了街区——但前方的路充满了考验他所有信仰的选择。有时上帝最响亮的教训来自我们最糟糕的决定。",
+    vol3Label: "第三卷 · 即将到来",
+    vol3Title: "希望的和声 第三卷",
+    vol3Subtitle: "弯曲但不折断，跌倒但不出局",
+    vol3Body: "敬请期待。传奇尚未结束。生活让你弯曲，街头考验你，但恩典总有办法在你触地之前接住你。",
+    beOnTheLookout: "敬请期待",
   },
 };
 

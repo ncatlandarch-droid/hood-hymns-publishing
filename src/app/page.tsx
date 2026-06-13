@@ -1,6 +1,7 @@
 "use client";
 
 import HeroLeadMagnet from "@/components/home/HeroLeadMagnet";
+import ComingSoonBanner from "@/components/home/ComingSoonBanner";
 import ContentEngine from "@/components/home/ContentEngine";
 import StorePreview from "@/components/home/StorePreview";
 import Testimonials from "@/components/home/Testimonials";
@@ -13,6 +14,9 @@ export default function HomePage() {
   return (
     <>
       <HeroLeadMagnet />
+
+      {/* ── Coming Soon — Vol 2 & Vol 3 ── */}
+      <ComingSoonBanner />
 
       {/* ── Testimonial of the Day ── */}
       <section style={{ padding: "80px 24px 40px" }}>

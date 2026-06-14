@@ -151,7 +151,7 @@ export default function Navbar() {
               e.currentTarget.style.boxShadow = "none";
             }}
           >
-            🙏 {t.donateCTA || "Support"}
+            Donate
           </a>
         </div>
 
@@ -223,7 +223,7 @@ export default function Navbar() {
               borderRadius: "6px",
             }}
           >
-            🙏 {t.donateCTA || "Support"}
+            Donate
           </a>
           <Link
             href="/free-chapter"

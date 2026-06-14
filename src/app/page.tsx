@@ -3,6 +3,7 @@
 import HeroLeadMagnet from "@/components/home/HeroLeadMagnet";
 import ComingSoonBanner from "@/components/home/ComingSoonBanner";
 import ContentEngine from "@/components/home/ContentEngine";
+import DonateSection from "@/components/home/DonateSection";
 import StorePreview from "@/components/home/StorePreview";
 import Testimonials from "@/components/home/Testimonials";
 import TestimonialCard from "@/components/ui/TestimonialCard";
@@ -51,6 +52,7 @@ export default function HomePage() {
       <StorePreview />
       <Testimonials />
       <ContentEngine />
+      <DonateSection />
     </>
   );
 }

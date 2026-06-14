@@ -5,9 +5,18 @@ import { useI18n } from "@/context/I18nContext";
 import ProductCard from "@/components/ui/ProductCard";
 import { products } from "@/data/store";
 
+/** Curated preview: 1 book + 2 best merch items */
+const PREVIEW_IDS = [
+  "harmonies-v1-physical",
+  "core-tshirt",
+  "b2b-tee",
+];
+
 export default function StorePreview() {
   const { t } = useI18n();
-  const previewProducts = products.slice(0, 3);
+  const previewProducts = PREVIEW_IDS
+    .map((id) => products.find((p) => p.id === id))
+    .filter(Boolean);
 
   return (
     <section style={{ padding: "80px 24px", background: "var(--color-brand-surface)" }}>
@@ -50,8 +59,8 @@ export default function StorePreview() {
         >
           {previewProducts.map((product) => (
             <ProductCard
-              key={product.id}
-              product={product}
+              key={product!.id}
+              product={product!}
               addToCartLabel={t.addToCart}
               notifyLabel={t.notifyMe}
             />

@@ -297,6 +297,11 @@ export interface UIStrings {
   vol3Subtitle: string;
   vol3Body: string;
   beOnTheLookout: string;
+  // Donate Section
+  donateTitle: string;
+  donateSubtitle: string;
+  donateCTA: string;
+  donateNote: string;
 }
 
 export const translations: Record<Locale, UIStrings> = {
@@ -541,6 +546,11 @@ export const translations: Record<Locale, UIStrings> = {
     vol3Subtitle: "Bent But Not Broken, Falling But Not Out",
     vol3Body: "Be on the lookout. The saga isn't over. Life bends you, the streets test you, but grace has a way of catching you before you hit the ground.",
     beOnTheLookout: "Stay Tuned",
+    // Donate Section
+    donateTitle: "Support the Mission",
+    donateSubtitle: "Hood Hymns Publishing is more than books — it's a movement. Your support helps us keep telling faith-based stories rooted in the streets of Detroit. Every dollar fuels the next chapter.",
+    donateCTA: "Donate via Cash App",
+    donateNote: "Every dollar supports faith-based storytelling from Detroit.",
   },
 
   es: {
@@ -784,6 +794,11 @@ export const translations: Record<Locale, UIStrings> = {
     vol3Subtitle: "Doblado Pero No Roto, Cayendo Pero No Vencido",
     vol3Body: "Estén atentos. La saga no ha terminado. La vida te dobla, las calles te prueban, pero la gracia tiene una forma de atraparte antes de que toques el suelo.",
     beOnTheLookout: "Estén Atentos",
+    // Donate Section
+    donateTitle: "Apoya la Misión",
+    donateSubtitle: "Hood Hymns Publishing es más que libros — es un movimiento. Tu apoyo nos ayuda a seguir contando historias de fe arraigadas en las calles de Detroit. Cada dólar impulsa el próximo capítulo.",
+    donateCTA: "Donar por Cash App",
+    donateNote: "Cada dólar apoya la narración de historias de fe desde Detroit.",
   },
 
   zh: {
@@ -1027,6 +1042,11 @@ export const translations: Record<Locale, UIStrings> = {
     vol3Subtitle: "弯曲但不折断，跌倒但不出局",
     vol3Body: "敬请期待。传奇尚未结束。生活让你弯曲，街头考验你，但恩典总有办法在你触地之前接住你。",
     beOnTheLookout: "敬请期待",
+    // Donate Section
+    donateTitle: "支持使命",
+    donateSubtitle: "Hood Hymns Publishing 不仅仅是书籍——它是一场运动。您的支持帮助我们继续讲述根植于底特律街头的信仰故事。每一美元都为下一个篇章注入动力。",
+    donateCTA: "通过 Cash App 捐款",
+    donateNote: "每一美元都支持底特律的信仰故事创作。",
   },
 };
 

@@ -125,6 +125,34 @@ export default function Navbar() {
             </Link>
           ))}
           <LanguageSwitcher />
+          <a
+            href="https://cash.app/$chrisdhowell"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              textDecoration: "none",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--color-brand-black)",
+              background: "linear-gradient(135deg, #D4944A, #B87333)",
+              padding: "8px 18px",
+              borderRadius: "6px",
+              transition: "all 0.3s ease",
+              whiteSpace: "nowrap",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "0 4px 16px rgba(184,115,51,0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            🙏 {t.donateCTA || "Support"}
+          </a>
         </div>
 
         {/* Mobile hamburger */}
@@ -176,6 +204,27 @@ export default function Navbar() {
             </Link>
           ))}
           <LanguageSwitcher />
+          <a
+            href="https://cash.app/$chrisdhowell"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMobileOpen(false)}
+            style={{
+              textDecoration: "none",
+              textAlign: "center",
+              marginTop: "8px",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--color-brand-black)",
+              background: "linear-gradient(135deg, #D4944A, #B87333)",
+              padding: "12px 24px",
+              borderRadius: "6px",
+            }}
+          >
+            🙏 {t.donateCTA || "Support"}
+          </a>
           <Link
             href="/free-chapter"
             className="btn-brand"

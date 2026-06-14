@@ -56,7 +56,10 @@ export async function POST(req: NextRequest) {
 
     // For digital products, generate a download token to include in the success URL
     let successUrl: string;
-    if (isDigital) {
+    if (id.includes("audiobook")) {
+      // Audiobook: redirect back to audiobook page with unlock param
+      successUrl = `${origin}/audiobook?purchased=audiobook`;
+    } else if (isDigital) {
       // Map product IDs to ebook file IDs
       const fileIdMap: Record<string, string> = {
         "harmonies-v1-digital": "harmonies-of-hope",

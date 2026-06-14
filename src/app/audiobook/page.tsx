@@ -4,11 +4,14 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useI18n } from "@/context/I18nContext";
 import Link from "next/link";
 
-// ── Stripe Payment Link for full audiobook ($9.99) ─────────────────────────
-// Replace this with your real Stripe Payment Link once created
-// Dashboard → Payment Links → + New → "The Harmonies of Hope — Full Audiobook" → $9.99
-// Set redirect URL to: https://hood-hymns-publishing.netlify.app/audiobook?purchased=audiobook
-const AUDIOBOOK_PAYMENT_LINK = process.env.NEXT_PUBLIC_AUDIOBOOK_PAYMENT_LINK || "#buy-audiobook";
+// ── Audiobook Purchase via /api/checkout ─────────────────────────────────
+const AUDIOBOOK_PRODUCT = {
+  id: "harmonies-audiobook",
+  title: "The Harmonies of Hope — Full Audiobook",
+  price: "$9.99",
+  image: "/book-harmonies-v1.png",
+  type: "digital" as const,
+};
 
 interface Chapter {
   id: string;
@@ -55,7 +58,32 @@ export default function AudiobookPage() {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const currentChapter = CHAPTERS[currentIndex];
+  const [isPurchasing, setIsPurchasing]   = useState(false);
+
   const canPlay = currentChapter.free || unlocked;
+
+  // ── Handle audiobook purchase via Stripe ──────────────────────────────────
+  async function handlePurchase() {
+    if (isPurchasing) return;
+    setIsPurchasing(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(AUDIOBOOK_PRODUCT),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || "Checkout failed. Please try again.");
+        setIsPurchasing(false);
+      }
+    } catch {
+      alert("Something went wrong. Please try again.");
+      setIsPurchasing(false);
+    }
+  }
 
   // ── Check purchase state on mount ────────────────────────────────────────
   useEffect(() => {
@@ -299,14 +327,15 @@ export default function AudiobookPage() {
               <span style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", color: "var(--color-brand-copper)", fontWeight: 700 }}>$9.99</span>
               <span style={{ color: "var(--color-brand-muted)", fontSize: "0.85rem", marginLeft: 8 }}>one-time · instant access</span>
             </div>
-            <a
-              href={`${AUDIOBOOK_PAYMENT_LINK}?client_reference_id=audiobook&success_url=${encodeURIComponent(typeof window !== "undefined" ? window.location.origin : "")}/audiobook?purchased=audiobook`}
+            <button
+              onClick={handlePurchase}
+              disabled={isPurchasing}
               className="btn-brand"
               id="audiobook-buy-btn"
-              style={{ display: "inline-block", textDecoration: "none", padding: "16px 40px", fontSize: "1rem", marginBottom: 16 }}
+              style={{ display: "inline-block", padding: "16px 40px", fontSize: "1rem", marginBottom: 16, cursor: isPurchasing ? "wait" : "pointer", opacity: isPurchasing ? 0.7 : 1, border: "none" }}
             >
-              🎧 Get Full Access — $9.99
-            </a>
+              {isPurchasing ? "Processing..." : "🎧 Get Full Access — $9.99"}
+            </button>
             <div>
               <button onClick={() => setShowPaywall(false)}
                 style={{ background: "none", border: "none", color: "var(--color-brand-muted)", cursor: "pointer", fontSize: "0.85rem", textDecoration: "underline" }}>
@@ -383,10 +412,10 @@ export default function AudiobookPage() {
                 8 more chapters · Narrated by the author · Instant streaming
               </div>
             </div>
-            <a href={AUDIOBOOK_PAYMENT_LINK} className="btn-brand" id="audiobook-unlock-btn"
-              style={{ textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>
-              🔓 Unlock for $9.99
-            </a>
+            <button onClick={handlePurchase} disabled={isPurchasing} className="btn-brand" id="audiobook-unlock-btn"
+              style={{ whiteSpace: "nowrap", flexShrink: 0, border: "none", cursor: isPurchasing ? "wait" : "pointer", opacity: isPurchasing ? 0.7 : 1 }}>
+              {isPurchasing ? "Processing..." : "🔓 Unlock for $9.99"}
+            </button>
           </div>
         )}
 

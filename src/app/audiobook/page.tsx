@@ -13,25 +13,32 @@ const AUDIOBOOK_PRODUCT = {
   type: "digital" as const,
 };
 
+type NarratorMode = "author" | "studio";
+
 interface Chapter {
   id: string;
   number: number;
   title: string;
-  src: string;
+  file: string;
   free: boolean;
 }
 
+function getChapterSrc(file: string, narrator: NarratorMode): string {
+  if (narrator === "studio") return `/audiobook/gemini-narrator/${file}`;
+  return `/audiobook/${file}`;
+}
+
 const CHAPTERS: Chapter[] = [
-  { id: "intro",      number: 0, title: "Introduction",                   src: "/audiobook/intro.mp3",       free: true  },
-  { id: "chapter-01", number: 1, title: "Chapter 1 — The Block",          src: "/audiobook/chapter-01.mp3",  free: true  },
-  { id: "chapter-02", number: 2, title: "Chapter 2 — Sunday Morning",     src: "/audiobook/chapter-02.mp3",  free: false },
-  { id: "chapter-03", number: 3, title: "Chapter 3 — The Hustle",         src: "/audiobook/chapter-03.mp3",  free: false },
-  { id: "chapter-04", number: 4, title: "Chapter 4 — Crossroads",         src: "/audiobook/chapter-04.mp3",  free: false },
-  { id: "chapter-05", number: 5, title: "Chapter 5 — Family Ties",        src: "/audiobook/chapter-05.mp3",  free: false },
-  { id: "chapter-06", number: 6, title: "Chapter 6 — The Hymn",           src: "/audiobook/chapter-06.mp3",  free: false },
-  { id: "chapter-07", number: 7, title: "Chapter 7 — Redemption Road",    src: "/audiobook/chapter-07.mp3",  free: false },
-  { id: "chapter-08", number: 8, title: "Chapter 8 — Coming Home",        src: "/audiobook/chapter-08.mp3",  free: false },
-  { id: "chapter-09", number: 9, title: "Chapter 9 — Harmonies of Hope",  src: "/audiobook/chapter-09.mp3",  free: false },
+  { id: "intro",      number: 0, title: "Introduction",                          file: "intro.mp3",       free: true  },
+  { id: "chapter-01", number: 1, title: "Chapter 1 — The Two-Family Flat",        file: "chapter-01.mp3",  free: true  },
+  { id: "chapter-02", number: 2, title: "Chapter 2 — The Brothers",               file: "chapter-02.mp3",  free: false },
+  { id: "chapter-03", number: 3, title: "Chapter 3 — Mom and Pop",                file: "chapter-03.mp3",  free: false },
+  { id: "chapter-04", number: 4, title: "Chapter 4 — The Move",                   file: "chapter-04.mp3",  free: false },
+  { id: "chapter-05", number: 5, title: "Chapter 5 — The Church",                 file: "chapter-05.mp3",  free: false },
+  { id: "chapter-06", number: 6, title: "Chapter 6 — The Water",                  file: "chapter-06.mp3",  free: false },
+  { id: "chapter-07", number: 7, title: "Chapter 7 — The Choir",                  file: "chapter-07.mp3",  free: false },
+  { id: "chapter-08", number: 8, title: "Chapter 8 — Now Direct",                 file: "chapter-08.mp3",  free: false },
+  { id: "chapter-09", number: 9, title: "Chapter 9 — The Harmony Unfolds",        file: "chapter-09.mp3",  free: false },
 ];
 
 function formatTime(seconds: number): string {
@@ -55,34 +62,22 @@ export default function AudiobookPage() {
   const [unlocked, setUnlocked]           = useState(false);
   const [showPaywall, setShowPaywall]     = useState(false);
   const [justPurchased, setJustPurchased] = useState(false);
+  const [narrator, setNarrator]           = useState<NarratorMode>("author");
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const currentChapter = CHAPTERS[currentIndex];
+  const currentSrc = getChapterSrc(currentChapter.file, narrator);
   const [isPurchasing, setIsPurchasing]   = useState(false);
 
   const canPlay = currentChapter.free || unlocked;
 
-  // ── Handle audiobook purchase via Stripe ──────────────────────────────────
-  async function handlePurchase() {
+  // ── Handle audiobook purchase via Gumroad ─────────────────────────────────
+  function handlePurchase() {
     if (isPurchasing) return;
     setIsPurchasing(true);
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(AUDIOBOOK_PRODUCT),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert(data.error || "Checkout failed. Please try again.");
-        setIsPurchasing(false);
-      }
-    } catch {
-      alert("Something went wrong. Please try again.");
-      setIsPurchasing(false);
-    }
+    window.open("https://hwlldmn.gumroad.com/l/nxzytb", "_blank");
+    // Reset state after a short delay so the button is usable again
+    setTimeout(() => setIsPurchasing(false), 1500);
   }
 
   // ── Check purchase state on mount ────────────────────────────────────────
@@ -117,9 +112,9 @@ export default function AudiobookPage() {
     setCurrentTime(0);
     setDuration(0);
     setShowPaywall(false);
-    audio.src = ch.src;
+    audio.src = getChapterSrc(ch.file, narrator);
     audio.load();
-  }, [unlocked]);
+  }, [unlocked, narrator]);
 
   const togglePlay = () => {
     if (!canPlay) { setShowPaywall(true); return; }
@@ -181,7 +176,7 @@ export default function AudiobookPage() {
           setTimeout(() => {
             setCurrentIndex(next);
             const a = audioRef.current;
-            if (a) { a.src = nextCh.src; a.load(); a.play().catch(() => {}); }
+            if (a) { a.src = getChapterSrc(nextCh.file, narrator); a.load(); a.play().catch(() => {}); }
           }, 1500);
         }
       }
@@ -205,11 +200,28 @@ export default function AudiobookPage() {
       audio.removeEventListener("error",          onError);
       audio.removeEventListener("ended",          onEnded);
     };
-  }, [currentIndex, autoAdvance, volume, unlocked]);
+  }, [currentIndex, autoAdvance, volume, unlocked, narrator]);
+
+  // ── Switch narrator: reload current chapter with new path ──────────────
+  const switchNarrator = (mode: NarratorMode) => {
+    if (mode === narrator) return;
+    const audio = audioRef.current;
+    const wasPlaying = isPlaying;
+    const savedTime = audio?.currentTime ?? 0;
+    setNarrator(mode);
+    if (audio) {
+      audio.src = getChapterSrc(currentChapter.file, mode);
+      audio.load();
+      audio.addEventListener("loadedmetadata", () => {
+        audio.currentTime = savedTime;
+        if (wasPlaying) audio.play().catch(() => {});
+      }, { once: true });
+    }
+  };
 
   return (
     <div style={{ background: "var(--color-brand-black)", minHeight: "100vh", paddingTop: "80px" }}>
-      <audio ref={audioRef} src={currentChapter.src} preload="metadata" />
+      <audio ref={audioRef} src={currentSrc} preload="metadata" />
 
       {/* ── Purchase Success Banner ── */}
       {justPurchased && (
@@ -230,8 +242,50 @@ export default function AudiobookPage() {
             The Harmonies of Hope
           </h1>
           <p style={{ color: "var(--color-brand-muted)", fontSize: "1.1rem", marginBottom: 12 }}>
-            By C.D. Howell · Narrated by the Author
+            By C.D. Howell · {narrator === "author" ? "Narrated by the Author" : "Studio Narration"}
           </p>
+
+          {/* ── Narrator Toggle ── */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 16 }}>
+            <button
+              onClick={() => switchNarrator("author")}
+              style={{
+                padding: "8px 20px",
+                borderRadius: 24,
+                border: narrator === "author" ? "2px solid var(--color-brand-copper)" : "1px solid var(--color-brand-border)",
+                background: narrator === "author" ? "rgba(184,115,51,0.15)" : "transparent",
+                color: narrator === "author" ? "var(--color-brand-copper)" : "var(--color-brand-muted)",
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: narrator === "author" ? 600 : 400,
+                transition: "all 0.3s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              🎤 C.D. Howell
+            </button>
+            <button
+              onClick={() => switchNarrator("studio")}
+              style={{
+                padding: "8px 20px",
+                borderRadius: 24,
+                border: narrator === "studio" ? "2px solid var(--color-brand-copper)" : "1px solid var(--color-brand-border)",
+                background: narrator === "studio" ? "rgba(184,115,51,0.15)" : "transparent",
+                color: narrator === "studio" ? "var(--color-brand-copper)" : "var(--color-brand-muted)",
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: narrator === "studio" ? 600 : 400,
+                transition: "all 0.3s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              👩 Studio Voice
+            </button>
+          </div>
           {!unlocked && (
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(184,115,51,0.1)", border: "1px solid rgba(184,115,51,0.25)", borderRadius: 20, padding: "4px 16px", fontSize: 13, color: "var(--color-brand-muted)" }}>
               ✅ Intro &amp; Chapter 1 Free &nbsp;·&nbsp; 🔒 Chapters 2–9 — <strong style={{ color: "var(--color-brand-copper)" }}>&nbsp;$9.99</strong>

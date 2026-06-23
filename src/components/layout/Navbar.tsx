@@ -126,7 +126,7 @@ export default function Navbar() {
           ))}
           <LanguageSwitcher />
           <a
-            href="https://cash.app/$chrisdhowell"
+            href="https://hwlldmn.gumroad.com/l/nqcgg"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -151,7 +151,7 @@ export default function Navbar() {
               e.currentTarget.style.boxShadow = "none";
             }}
           >
-            Donate
+            Support
           </a>
         </div>
 
@@ -205,7 +205,7 @@ export default function Navbar() {
           ))}
           <LanguageSwitcher />
           <a
-            href="https://cash.app/$chrisdhowell"
+            href="https://hwlldmn.gumroad.com/l/nqcgg"
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setMobileOpen(false)}
@@ -223,7 +223,7 @@ export default function Navbar() {
               borderRadius: "6px",
             }}
           >
-            Donate
+            Support
           </a>
           <Link
             href="/free-chapter"

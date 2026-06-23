@@ -143,6 +143,27 @@ export default function Footer() {
             ✦
           </Link>
         </div>
+
+        {/* Think! Design and Planning Credit */}
+        <div style={{ textAlign: "center", marginTop: "16px" }}>
+          <a
+            href="https://thinkdesignandplanning.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: "0.7rem",
+              color: "var(--color-brand-muted)",
+              textDecoration: "none",
+              opacity: 0.5,
+              transition: "opacity 0.3s ease, color 0.3s ease",
+              letterSpacing: "0.05em",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.color = "var(--color-brand-copper)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.5"; e.currentTarget.style.color = "var(--color-brand-muted)"; }}
+          >
+            Designed & Built by Think! Design and Planning, LLC
+          </a>
+        </div>
       </div>
     </footer>
   );

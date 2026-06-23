@@ -549,7 +549,7 @@ export const translations: Record<Locale, UIStrings> = {
     // Donate Section
     donateTitle: "Support the Mission",
     donateSubtitle: "Hood Hymns Publishing is more than books — it's a movement. Your support helps us keep telling faith-based stories rooted in the streets of Detroit. Every dollar fuels the next chapter.",
-    donateCTA: "Donate via Cash App",
+    donateCTA: "Support on Gumroad",
     donateNote: "Every dollar supports faith-based storytelling from Detroit.",
   },
 
@@ -797,7 +797,7 @@ export const translations: Record<Locale, UIStrings> = {
     // Donate Section
     donateTitle: "Apoya la Misión",
     donateSubtitle: "Hood Hymns Publishing es más que libros — es un movimiento. Tu apoyo nos ayuda a seguir contando historias de fe arraigadas en las calles de Detroit. Cada dólar impulsa el próximo capítulo.",
-    donateCTA: "Donar por Cash App",
+    donateCTA: "Apoyar en Gumroad",
     donateNote: "Cada dólar apoya la narración de historias de fe desde Detroit.",
   },
 
@@ -1045,7 +1045,7 @@ export const translations: Record<Locale, UIStrings> = {
     // Donate Section
     donateTitle: "支持使命",
     donateSubtitle: "Hood Hymns Publishing 不仅仅是书籍——它是一场运动。您的支持帮助我们继续讲述根植于底特律街头的信仰故事。每一美元都为下一个篇章注入动力。",
-    donateCTA: "通过 Cash App 捐款",
+    donateCTA: "通过 Gumroad 支持",
     donateNote: "每一美元都支持底特律的信仰故事创作。",
   },
 };
@@ -1307,13 +1307,13 @@ export const seriesTranslations: Record<string, Partial<Record<Locale, { name: s
       name: "Las Armonías de la Esperanza",
       tagline: "La serie debut de C.D. Howell. Un chico de Detroit descubre su propósito a través de la música, la fe y la familia — desde el apartamento familiar hasta el podio del coro.",
       synopsis: "Chris es uno de cinco hermanos que crece en un animado apartamento de dos familias en el corazón de Detroit. Entre las risas de los primos, los ritmos de la banda del colegio y los sermones que moldearon su alma, descubre que la música no es solo algo que disfruta — es parte de su llamado. Las Armonías de la Esperanza sigue a Chris desde la escuela primaria hasta el podio del coro. Por C.D. Howell.",
-      upcoming: "Vol. II — El Podio del Coro · Próximamente 2026",
+      upcoming: "Vol. II — Decisiones, Consecuencias, Pero Dios · Próximamente 2026",
     },
     zh: {
       name: "希望的和声",
       tagline: "C.D. Howell的首部系列。底特律的一个男孩通过音乐、信仰和家庭发现自己的人生目的——从两户式公寓到唱诗班指挥台。",
       synopsis: "克里斯是底特律一栋热闹的两户式公寓里五个兄弟姐妹之一。在表兄弟的笑声、音乐会乐队的节奏和塑造他灵魂的布道之间，他发现音乐不仅仅是他享受的东西——它是他使命的一部分。《希望的和声》跟随克里斯从小学走到唱诗班指挥台。作者：C.D. Howell。",
-      upcoming: "第二卷 — 唱诗班指挥台 · 即将推出2026",
+      upcoming: "第二卷 — 拉择、后果、但上帝 · 即将推出2026",
     },
   },
   "prodigal-block": {

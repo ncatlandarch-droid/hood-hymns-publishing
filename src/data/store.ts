@@ -17,7 +17,7 @@ export const seriesList: SeriesMeta[] = [
     name: "The Harmonies of Hope",
     tagline: "Series One — A Hood Hymns Publishing Original. A Detroit boy discovers purpose through music, faith, and family — from the two-family flat to the choir stand.",
     synopsis: `James is one of five siblings growing up in a lively two-family flat in the heart of Detroit. Between the laughter of cousins, the rhythms of concert band, and the sermons that shaped his soul, he discovers that music isn't just something he enjoys — it's part of his calling. The Harmonies of Hope follows James from elementary school to the choir stand, through moves, baptism, and the moment a youth overseer placed him in front of the choir and said, "Now direct." By C.D. Howell.`,
-    upcoming: "Vol. II — The Choir Stand · Coming 2026",
+    upcoming: "Vol. II — Decisions, Consequences, But God · Coming 2026",
     accentColor: "var(--color-brand-copper)",
   },
   {
@@ -49,12 +49,13 @@ export const products: Product[] = [
   {
     id: "harmonies-v1-physical",
     title: "The Harmonies of Hope",
-    type: "Paperback · Vol. I",
+    type: "Hardback · Vol. I",
     price: "$24.99",
     image: "/book-harmonies-v1.png",
-    description: `The debut novel by ${AUTHOR}. A young boy in Detroit discovers that music, faith, and family are the instruments God uses to compose your purpose. Published by Hood Hymns Publishing. 2026.`,
+    description: `The debut novel by ${AUTHOR}. A young boy in Detroit discovers that music, faith, and family are the instruments God uses to compose your purpose. Hardback coming soon to Amazon KDP. Published by Hood Hymns Publishing. 2026.`,
     collection: "The Harmonies of Hope",
     productType: "physical",
+    comingSoon: true,
   },
   {
     id: "harmonies-v1-digital",
@@ -65,6 +66,18 @@ export const products: Product[] = [
     description: `The complete digital edition by ${AUTHOR}. DRM-free EPUB and PDF. Compatible with Kindle, Apple Books, Kobo, and all major e-readers. Delivered instantly.`,
     collection: "The Harmonies of Hope",
     productType: "digital",
+    paymentLink: "https://hwlldmn.gumroad.com/l/ojwtfz",
+  },
+  {
+    id: "harmonies-v1-audiobook",
+    title: "The Harmonies of Hope",
+    type: "Audiobook · Vol. I",
+    price: "$9.99",
+    image: "/book-harmonies-v1.png",
+    description: `The full audiobook narrated by ${AUTHOR}. 9 chapters of faith, family, and music from the streets of Detroit. Stream instantly after purchase.`,
+    collection: "The Harmonies of Hope",
+    productType: "digital",
+    paymentLink: "https://hwlldmn.gumroad.com/l/nxzytb",
   },
 
   // ── HOOD HYMNS APPAREL (Only real Printful Quickstore products) ──

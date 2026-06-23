@@ -14,6 +14,7 @@ export interface Product {
   collection: string;
   paymentLink?: string;
   productType?: "physical" | "digital";
+  comingSoon?: boolean;
 }
 
 interface ProductCardProps {
@@ -36,8 +37,9 @@ export default function ProductCard({
   const description = trans?.description || product.description;
   const isComingSoon =
     (product.image.includes("v2") && product.collection === "The Prodigal Block") ||
-    product.id.includes("coming-soon");
-  const isMerch = !product.type.includes("Paperback") && !product.type.includes("E-Book");
+    product.id.includes("coming-soon") ||
+    !!(product as any).comingSoon;
+  const isMerch = !product.type.includes("Paperback") && !product.type.includes("Hardback") && !product.type.includes("E-Book");
   const isDigital = product.productType === "digital";
   const isAccessory = product.type.includes("Accessories") || product.type.includes("Snapback") || product.type.includes("Cap");
   const needsSize = isMerch && !isAccessory;

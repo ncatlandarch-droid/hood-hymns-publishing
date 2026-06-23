@@ -739,7 +739,7 @@ It just changes key.
 
 *End of Volume One*
 
-*The Harmonies of Hope: Vol. II — The Choir Stand*
+*The Harmonies of Hope: Vol. II — Decisions, Consequences, But God*
 
 *Coming 2026*
 

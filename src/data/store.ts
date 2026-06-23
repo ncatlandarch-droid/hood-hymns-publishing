@@ -89,7 +89,7 @@ export const products: Product[] = [
     image: "/merch-real/18263555-586-6a2d2369ea917__360.webp",
     description: `Premium garment-dyed heavyweight tee. Official Hood Hymns Publishing logo — open book, cross, and HH monogram in copper & white. Pre-shrunk, runs true to size.`,
     collection: "Hood Hymns Apparel",
-    paymentLink: "https://hood-hymns-publishing.printful.me/",
+    paymentLink: "https://hood-hymns.printify.me/",
     productType: "physical",
   },
   {
@@ -100,7 +100,7 @@ export const products: Product[] = [
     image: "/merch-real/18263555-586-6a2d24c5ef0fc__360.webp",
     description: `Premium garment-dyed heavyweight tee. Original character graphic of a young trombonist from the novel — screen-printed in copper & royal purple. Official ${AUTHOR} merchandise.`,
     collection: "Hood Hymns Apparel",
-    paymentLink: "https://hood-hymns-publishing.printful.me/",
+    paymentLink: "https://hood-hymns.printify.me/",
     productType: "physical",
   },
   {
@@ -111,7 +111,7 @@ export const products: Product[] = [
     image: "/merch-real/18263555-586-6a2d28236532b__360.webp",
     description: `Premium garment-dyed heavyweight tee featuring the B2B circular badge — copper logo with cross detail. Block to Blessing. Faith first. Runs true to size.`,
     collection: "Hood Hymns Apparel",
-    paymentLink: "https://hood-hymns-publishing.printful.me/",
+    paymentLink: "https://hood-hymns.printify.me/",
     productType: "physical",
   },
   {
@@ -122,7 +122,7 @@ export const products: Product[] = [
     image: "/merch-real/18263555-586-6a2d2692d21bd__360.webp",
     description: `Premium garment-dyed heavyweight tee with artistic Detroit skyline and choir silhouette design in purple & copper. 'DETROIT • HOOD HYMNS' text. Urban faith meets streetwear.`,
     collection: "Hood Hymns Apparel",
-    paymentLink: "https://hood-hymns-publishing.printful.me/",
+    paymentLink: "https://hood-hymns.printify.me/",
     productType: "physical",
   },
   {
@@ -133,7 +133,7 @@ export const products: Product[] = [
     image: "/merch-real/18263555-586-6a2d5ab76e7a1__360.webp",
     description: `Premium garment-dyed heavyweight tee. Bold 'BLESSED NOT LUCKY' typography in copper with cross detail. A faith statement you can wear. Runs true to size.`,
     collection: "Hood Hymns Apparel",
-    paymentLink: "https://hood-hymns-publishing.printful.me/",
+    paymentLink: "https://hood-hymns.printify.me/",
     productType: "physical",
   },
 ];

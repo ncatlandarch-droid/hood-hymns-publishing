@@ -66,7 +66,7 @@ export const products: Product[] = [
     description: `The complete digital edition by ${AUTHOR}. DRM-free EPUB and PDF. Compatible with Kindle, Apple Books, Kobo, and all major e-readers. Delivered instantly.`,
     collection: "The Harmonies of Hope",
     productType: "digital",
-    paymentLink: "https://hwlldmn.gumroad.com/l/ojwtfz",
+    paymentLink: "https://hoodhymn.gumroad.com/l/kwhenv",
   },
   {
     id: "harmonies-v1-audiobook",
@@ -77,7 +77,7 @@ export const products: Product[] = [
     description: `The full audiobook narrated by ${AUTHOR}. 9 chapters of faith, family, and music from the streets of Detroit. Stream instantly after purchase.`,
     collection: "The Harmonies of Hope",
     productType: "digital",
-    paymentLink: "https://hwlldmn.gumroad.com/l/nxzytb",
+    paymentLink: "https://hoodhymn.gumroad.com/l/yknrr",
   },
 
   // ── HOOD HYMNS APPAREL (Only real Printful Quickstore products) ──

@@ -75,7 +75,7 @@ export default function AudiobookPage() {
   function handlePurchase() {
     if (isPurchasing) return;
     setIsPurchasing(true);
-    window.open("https://hwlldmn.gumroad.com/l/nxzytb", "_blank");
+    window.open("https://hoodhymn.gumroad.com/l/yknrr", "_blank");
     // Reset state after a short delay so the button is usable again
     setTimeout(() => setIsPurchasing(false), 1500);
   }

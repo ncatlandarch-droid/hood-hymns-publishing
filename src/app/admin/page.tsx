@@ -1,1250 +1,1754 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { products } from "@/data/store";
+import { useState, useEffect, useCallback } from "react";
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  signOut,
+  User,
+} from "firebase/auth";
+import {
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  limit,
+} from "firebase/firestore";
+import { auth, db, googleProvider, ADMIN_EMAILS } from "@/lib/firebase";
 
-// ── Auth ────────────────────────────────────────────────────────────
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "BrothersWin";
-
-// ── Types ───────────────────────────────────────────────────────────
-type View =
+// ════════════════════════════════════════════════════════════════════
+//  TYPES
+// ════════════════════════════════════════════════════════════════════
+type Tab =
   | "dashboard"
   | "orders"
   | "products"
-  | "printful"
-  | "subscribers"
-  | "testimonials"
-  | "books"
+  | "merch"
+  | "analytics"
+  | "cliff"
   | "settings";
 
-interface SidebarItem {
-  id: View;
+interface TabDef {
+  id: Tab;
   icon: string;
   label: string;
 }
 
-const SIDEBAR_ITEMS: SidebarItem[] = [
+const TABS: TabDef[] = [
   { id: "dashboard", icon: "📊", label: "Dashboard" },
   { id: "orders", icon: "📦", label: "Orders" },
   { id: "products", icon: "🏷️", label: "Products" },
-  { id: "printful", icon: "👕", label: "Printful" },
-  { id: "subscribers", icon: "📧", label: "Subscribers" },
-  { id: "testimonials", icon: "🎤", label: "Testimonials" },
-  { id: "books", icon: "📚", label: "Books & Manuscripts" },
+  { id: "merch", icon: "👕", label: "Merch" },
+  { id: "analytics", icon: "📈", label: "Analytics" },
+  { id: "cliff", icon: "🏔️", label: "Cliff Tracker" },
   { id: "settings", icon: "⚙️", label: "Settings" },
 ];
 
-// ── Demo data ───────────────────────────────────────────────────────
-const DEMO_ORDERS = [
-  { id: "HH-1042", customer: "Darius J.", product: "Harmonies of Hope (Paperback)", amount: "$24.99", date: "Jun 12, 2026", status: "Fulfilled" as const },
-  { id: "HH-1041", customer: "Keisha M.", product: "B2B Logo Hoodie", amount: "$55.00", date: "Jun 11, 2026", status: "Shipped" as const },
-  { id: "HH-1040", customer: "Trevon W.", product: "Prodigal Block Vol. I (Paperback)", amount: "$24.99", date: "Jun 11, 2026", status: "Pending" as const },
-  { id: "HH-1039", customer: "Angela P.", product: "Studio Snapback", amount: "$28.00", date: "Jun 10, 2026", status: "Fulfilled" as const },
-  { id: "HH-1038", customer: "Marcus B.", product: "B2B Signature Tee", amount: "$40.00", date: "Jun 10, 2026", status: "Shipped" as const },
-  { id: "HH-1037", customer: "Jasmine R.", product: "Harmonies of Hope (E-Book)", amount: "$12.99", date: "Jun 9, 2026", status: "Fulfilled" as const },
-  { id: "HH-1036", customer: "DeShawn K.", product: "Hood Hymns Studio Hoodie", amount: "$55.00", date: "Jun 9, 2026", status: "Pending" as const },
-  { id: "HH-1035", customer: "Crystal L.", product: "Detroit Choir Tee", amount: "$40.00", date: "Jun 8, 2026", status: "Fulfilled" as const },
-];
+interface GumroadProduct {
+  id: string;
+  name: string;
+  price: number;
+  formatted_price?: string;
+  thumbnail_url?: string;
+  preview_url?: string;
+  url?: string;
+  short_url?: string;
+  sales_count?: number;
+  published?: boolean;
+}
 
-const RECENT_ACTIVITY = [
-  { icon: "🛒", text: "Darius J. purchased Harmonies of Hope", time: "2h ago" },
-  { icon: "📦", text: "Order HH-1041 shipped via USPS", time: "5h ago" },
-  { icon: "⭐", text: "New 5-star review on Prodigal Block", time: "8h ago" },
-  { icon: "📧", text: "3 new email subscribers", time: "12h ago" },
-  { icon: "🎤", text: "New testimonial published", time: "1d ago" },
-  { icon: "📚", text: "Harmonies Vol 2 draft: Chapter 8 complete", time: "2d ago" },
-];
+interface GumroadSale {
+  id: string;
+  email: string;
+  product_name: string;
+  price: number;
+  created_at: string;
+  refunded?: boolean;
+  full_name?: string;
+  order_number?: number;
+}
 
-const PRINTFUL_PRODUCTS = [
-  { name: "B2B Logo Hoodie", printfulId: "436109640", synced: true },
-  { name: "B2B Signature Tee", printfulId: "436109678", synced: true },
-  { name: "B2B Embroidered Cap", printfulId: "436109712", synced: true },
-  { name: "B2B Classic Crewneck", printfulId: "436109738", synced: true },
-  { name: "Detroit Choir Tee", printfulId: "436109770", synced: true },
-  { name: "Hood Hymns Studio Hoodie", printfulId: "436109792", synced: true },
-  { name: "Studio Signature Tee", printfulId: "436109808", synced: true },
-  { name: "Studio Snapback", printfulId: "436109824", synced: true },
-  { name: "Harmonies Character Tee", printfulId: "436109838", synced: true },
-];
+interface PrintifyProduct {
+  id: string;
+  title: string;
+  image: string | null;
+  variants: number;
+  minPrice: number;
+}
 
-const BOOK_PIPELINE = [
-  { title: "Harmonies of Hope Vol 1", status: "published" as const, icon: "✅", detail: "Published · 2026 · Paperback + E-Book" },
-  { title: "Harmonies of Hope Vol 2 (Bad Decisions, But God)", status: "in-progress" as const, icon: "📝", detail: "In Progress · Chapter 8/14 · Est. Fall 2026" },
-  { title: "Harmonies of Hope Vol 3 (Bent But Not Broken)", status: "planned" as const, icon: "📋", detail: "Planned · Outline Phase · Est. 2027" },
-  { title: "Prodigal Block Vol 1: Lost Frequency", status: "published" as const, icon: "✅", detail: "Published · 2026 · 285 pages" },
-  { title: "Prodigal Block Vol 2: Coming Home", status: "in-progress" as const, icon: "📝", detail: "In Progress · First Draft · Est. Late 2026" },
-];
+interface PrintifyOrder {
+  id: string;
+  status: string;
+  created_at: string;
+  line_items?: Array<{
+    title: string;
+    quantity: number;
+    metadata?: { price?: number };
+  }>;
+  address_to?: { first_name?: string; last_name?: string; email?: string };
+  total_price?: number;
+  total_shipping?: number;
+}
+
+interface GumroadData {
+  success: boolean;
+  products: GumroadProduct[];
+  sales: GumroadSale[];
+  totalRevenue: number;
+  totalSales: number;
+  salesByProduct: Record<string, { count: number; revenue: number }>;
+  monthlyRevenue: Record<string, number>;
+  error?: string;
+}
+
+interface PrintifyData {
+  success: boolean;
+  products: PrintifyProduct[];
+  totalProducts: number;
+  orders: PrintifyOrder[];
+  totalOrders: number;
+  ordersByStatus: Record<string, number>;
+  error?: string;
+}
+
+interface AnalyticsDoc {
+  page: string;
+  views: number;
+  visitors: number;
+  date: string;
+}
+
+interface CliffDoc {
+  totalRevenue: number;
+  totalExpenses: number;
+  netProfit: number;
+  cliffReached: boolean;
+  cliffDate: string | null;
+  totalContributed: number;
+  graduated: boolean;
+  lastUpdated: string;
+}
 
 // ════════════════════════════════════════════════════════════════════
 //  ADMIN PAGE
 // ════════════════════════════════════════════════════════════════════
 export default function AdminPage() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [activeView, setActiveView] = useState<View>("dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // ── Auth State ──
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  // Testimonial recorder state (preserved from original)
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [textMessage, setTextMessage] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
+  // ── Dashboard State ──
+  const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+  const [gumroad, setGumroad] = useState<GumroadData | null>(null);
+  const [printify, setPrintify] = useState<PrintifyData | null>(null);
+  const [gumroadLoading, setGumroadLoading] = useState(true);
+  const [printifyLoading, setPrintifyLoading] = useState(true);
+  const [gumroadError, setGumroadError] = useState("");
+  const [printifyError, setPrintifyError] = useState("");
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Product availability toggles
-  const [availability, setAvailability] = useState<Record<string, boolean>>(
-    () => Object.fromEntries(products.map((p) => [p.id, true]))
-  );
+  // ── Analytics State ──
+  const [analytics, setAnalytics] = useState<AnalyticsDoc[]>([]);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
 
-  const mediaRecorderRef = useRef<any>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
+  // ── Cliff State ──
+  const [cliffData, setCliffData] = useState<CliffDoc | null>(null);
+  const [cliffLoading, setCliffLoading] = useState(true);
 
+  // ════════════════════════════════════════════════════════════════
+  //  AUTH
+  // ════════════════════════════════════════════════════════════════
   useEffect(() => {
-    return () => {
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [audioUrl]);
-
-  // ── Auth handlers ───────────────────────────────────────────────
-  function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setAuthenticated(true);
-      setError("");
-    } else {
-      setError("Incorrect password");
-    }
-  }
-
-  // ── Testimonial recorder handlers (preserved) ──────────────────
-  async function startRecording() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new (window as any).MediaRecorder(stream, {
-        mimeType: "audio/webm;codecs=opus",
-      });
-      mediaRecorderRef.current = recorder;
-      chunksRef.current = [];
-
-      recorder.ondataavailable = (e: any) => {
-        if (e.data && e.data.size > 0) {
-          chunksRef.current.push(e.data);
-        }
-      };
-
-      recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        setAudioBlob(blob);
-        const url = URL.createObjectURL(blob);
-        setAudioUrl(url);
-        stream.getTracks().forEach((track: any) => track.stop());
-      };
-
-      recorder.start(250);
-      setIsRecording(true);
-      setRecordingTime(0);
-      setAudioBlob(null);
-      setAudioUrl(null);
-      setSuccess(false);
-
-      timerRef.current = setInterval(() => {
-        setRecordingTime((t) => t + 1);
-      }, 1000);
-    } catch (err) {
-      console.error("Microphone access error:", err);
-      setError("Could not access microphone. Please allow microphone permissions.");
-    }
-  }
-
-  function stopRecording() {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
-    }
-    setIsRecording(false);
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  }
-
-  async function handleSubmit() {
-    if (!audioBlob && !textMessage.trim()) return;
-    setSubmitting(true);
-    setError("");
-    try {
-      const formData = new FormData();
-      if (audioBlob) formData.append("audio", audioBlob, "testimonial.webm");
-      if (textMessage.trim()) formData.append("text", textMessage.trim());
-
-      const res = await fetch("/api/testimonial", { method: "POST", body: formData });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Submission failed");
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setAuthLoading(false);
+      if (u && u.email) {
+        setIsAdmin(ADMIN_EMAILS.includes(u.email));
+      } else {
+        setIsAdmin(false);
       }
-      setSuccess(true);
-      setAudioBlob(null);
-      setAudioUrl(null);
-      setTextMessage("");
-      setRecordingTime(0);
-    } catch (err: any) {
-      setError(err.message || "Failed to submit testimonial");
+    });
+    return unsub;
+  }, []);
+
+  async function handleGoogleLogin() {
+    setAuthError("");
+    setLoginLoading(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setAuthError(e.message || "Google sign-in failed");
     } finally {
-      setSubmitting(false);
+      setLoginLoading(false);
     }
   }
 
-  function formatTime(seconds: number) {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, "0")}`;
+  async function handleEmailLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setAuthError("");
+    setLoginLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+    } catch (err: unknown) {
+      const er = err as { code?: string; message?: string };
+      if (er.code === "auth/invalid-credential" || er.code === "auth/wrong-password") {
+        setAuthError("Invalid email or password");
+      } else if (er.code === "auth/user-not-found") {
+        setAuthError("No account found with this email");
+      } else {
+        setAuthError(er.message || "Sign-in failed");
+      }
+    } finally {
+      setLoginLoading(false);
+    }
   }
 
-  const todayStr = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const viewTitles: Record<View, string> = {
-    dashboard: "Dashboard",
-    orders: "Orders",
-    products: "Products",
-    printful: "Printful Sync",
-    subscribers: "Subscribers",
-    testimonials: "Testimonials",
-    books: "Books & Manuscripts",
-    settings: "Settings",
-  };
+  async function handleLogout() {
+    await signOut(auth);
+  }
 
   // ════════════════════════════════════════════════════════════════
-  //  LOGIN SCREEN
+  //  DATA FETCHING
   // ════════════════════════════════════════════════════════════════
-  if (!authenticated) {
+  const fetchGumroad = useCallback(async () => {
+    setGumroadLoading(true);
+    setGumroadError("");
+    try {
+      const res = await fetch("/api/admin/gumroad");
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || "Gumroad fetch failed");
+      setGumroad(data);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setGumroadError(e.message || "Failed to load Gumroad data");
+    } finally {
+      setGumroadLoading(false);
+    }
+  }, []);
+
+  const fetchPrintify = useCallback(async () => {
+    setPrintifyLoading(true);
+    setPrintifyError("");
+    try {
+      const res = await fetch("/api/admin/printify");
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || "Printify fetch failed");
+      setPrintify(data);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setPrintifyError(e.message || "Failed to load Printify data");
+    } finally {
+      setPrintifyLoading(false);
+    }
+  }, []);
+
+  const fetchAll = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([fetchGumroad(), fetchPrintify()]);
+    setLastRefresh(new Date());
+    setRefreshing(false);
+  }, [fetchGumroad, fetchPrintify]);
+
+  // Initial data load
+  useEffect(() => {
+    if (isAdmin) {
+      fetchAll();
+    }
+  }, [isAdmin, fetchAll]);
+
+  // ── Firestore: Analytics ──
+  useEffect(() => {
+    if (!isAdmin) return;
+    setAnalyticsLoading(true);
+    try {
+      const q = query(
+        collection(db, "analytics"),
+        orderBy("date", "desc"),
+        limit(50)
+      );
+      const unsub = onSnapshot(q, (snap) => {
+        const docs = snap.docs.map((d) => d.data() as AnalyticsDoc);
+        setAnalytics(docs);
+        setAnalyticsLoading(false);
+      }, () => {
+        setAnalyticsLoading(false);
+      });
+      return unsub;
+    } catch {
+      setAnalyticsLoading(false);
+    }
+  }, [isAdmin]);
+
+  // ── Firestore: Cliff Tracker ──
+  useEffect(() => {
+    if (!isAdmin) return;
+    setCliffLoading(true);
+    try {
+      const unsub = onSnapshot(collection(db, "cliff-tracker"), (snap) => {
+        if (!snap.empty) {
+          setCliffData(snap.docs[0].data() as CliffDoc);
+        }
+        setCliffLoading(false);
+      }, () => {
+        setCliffLoading(false);
+      });
+      return unsub;
+    } catch {
+      setCliffLoading(false);
+    }
+  }, [isAdmin]);
+
+  // ════════════════════════════════════════════════════════════════
+  //  COMPUTED VALUES
+  // ════════════════════════════════════════════════════════════════
+  const totalRevenue = gumroad?.totalRevenue || 0;
+  const totalGumroadSales = gumroad?.totalSales || 0;
+  const totalPrintifyOrders = printify?.totalOrders || 0;
+  const totalOrders = totalGumroadSales + totalPrintifyOrders;
+  const totalProducts = (gumroad?.products?.length || 0) + (printify?.totalProducts || 0);
+
+  // Cliff computation
+  const CLIFF_AMOUNT = 2500;
+  const GRADUATION_CAP = 10000;
+  const estimatedExpenseRate = 0.35; // 35% estimated expenses
+  const netProfit = cliffData?.netProfit ?? totalRevenue * (1 - estimatedExpenseRate);
+  const cliffReached = cliffData?.cliffReached ?? netProfit >= CLIFF_AMOUNT;
+  const totalContributed = cliffData?.totalContributed ?? 0;
+  const graduated = cliffData?.graduated ?? totalContributed >= GRADUATION_CAP;
+
+  const cliffProgress = cliffReached ? 100 : Math.min(100, (netProfit / CLIFF_AMOUNT) * 100);
+  const graduationProgress = graduated
+    ? 100
+    : Math.min(100, (totalContributed / GRADUATION_CAP) * 100);
+
+  // Combined orders for the Orders tab
+  const combinedOrders = [
+    ...(gumroad?.sales || []).map((s) => ({
+      id: s.order_number ? `GR-${s.order_number}` : s.id.slice(0, 8),
+      customer: s.full_name || s.email?.split("@")[0] || "Unknown",
+      product: s.product_name || "Unknown",
+      amount: s.price / 100,
+      date: s.created_at,
+      source: "Gumroad" as const,
+      status: s.refunded ? ("Refunded" as const) : ("Fulfilled" as const),
+    })),
+    ...(printify?.orders || []).map((o) => ({
+      id: `PF-${o.id.slice(0, 6)}`,
+      customer: o.address_to
+        ? `${o.address_to.first_name || ""} ${o.address_to.last_name || ""}`.trim() || o.address_to.email || "Unknown"
+        : "Unknown",
+      product: o.line_items?.[0]?.title || "Merch Order",
+      amount: (o.total_price || 0) / 100,
+      date: o.created_at,
+      source: "Printify" as const,
+      status:
+        o.status === "fulfilled" || o.status === "delivery-confirmed"
+          ? ("Fulfilled" as const)
+          : o.status === "shipping" || o.status === "in-transit"
+          ? ("Shipped" as const)
+          : ("Pending" as const),
+    })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // Monthly revenue for chart
+  const monthlyData = gumroad?.monthlyRevenue || {};
+  const sortedMonths = Object.keys(monthlyData).sort();
+  const last6Months = sortedMonths.slice(-6);
+  const maxMonthlyRev = Math.max(...last6Months.map((m) => (monthlyData[m] || 0) / 100), 1);
+
+  // ════════════════════════════════════════════════════════════════
+  //  HELPERS
+  // ════════════════════════════════════════════════════════════════
+  function formatCurrency(cents: number) {
+    return `$${(cents).toFixed(2)}`;
+  }
+
+  function formatDate(dateStr: string) {
+    try {
+      return new Date(dateStr).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return dateStr;
+    }
+  }
+
+  function monthLabel(yyyymm: string) {
+    try {
+      const [y, m] = yyyymm.split("-");
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return `${months[parseInt(m) - 1]} ${y.slice(2)}`;
+    } catch {
+      return yyyymm;
+    }
+  }
+
+  const userInitials = user?.displayName
+    ? user.displayName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : user?.email?.slice(0, 2).toUpperCase() || "??";
+
+  // ════════════════════════════════════════════════════════════════
+  //  LOADING STATE
+  // ════════════════════════════════════════════════════════════════
+  if (authLoading) {
     return (
-      <div style={s.loginPage}>
-        <div style={s.loginCard}>
-          <div style={{ fontSize: "2.5rem", marginBottom: 16 }}>🔒</div>
-          <h1 style={s.loginTitle}>Admin Access</h1>
-          <p style={s.loginSubtitle}>Hood Hymns Publishing</p>
-          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
-              style={s.input}
-              autoFocus
-            />
-            <button type="submit" style={s.btnCopper}>Unlock</button>
-          </form>
-          {error && <p style={s.errorText}>{error}</p>}
+      <>
+        <style>{cssReset}</style>
+        <div className="hh-admin" style={{
+          display: "flex", alignItems: "center", justifyContent: "center",
+          minHeight: "100vh", background: "var(--bg-primary)",
+        }}>
+          <div style={{ textAlign: "center" }}>
+            <div className="spinner" style={{ width: 40, height: 40, margin: "0 auto 1rem" }} />
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Loading...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   // ════════════════════════════════════════════════════════════════
-  //  DASHBOARD LAYOUT
+  //  LOGIN GATE
   // ════════════════════════════════════════════════════════════════
-  return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#08050F", fontFamily: "'Inter', -apple-system, sans-serif", color: "#F0EDE8" }}>
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 90 }}
-        />
-      )}
-
-      {/* ── SIDEBAR ──────────────────────────────────────────────── */}
-      <aside
-        style={{
-          width: 250,
-          background: "rgba(14, 10, 26, 0.95)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderRight: "1px solid rgba(184, 115, 51, 0.15)",
-          position: "fixed",
-          top: 0,
-          left: sidebarOpen ? 0 : undefined,
-          bottom: 0,
-          zIndex: 100,
-          display: "flex",
-          flexDirection: "column",
-          transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
-          transform: typeof window !== "undefined" && window.innerWidth < 768 && !sidebarOpen
-            ? "translateX(-100%)"
-            : "translateX(0)",
-        }}
-      >
-        {/* Brand */}
-        <div style={{ padding: "22px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 12 }}>
+  if (!user) {
+    return (
+      <>
+        <style>{cssReset}</style>
+        <div className="hh-admin" id="login-gate">
           <div style={{
-            width: 38, height: 38, borderRadius: 10,
-            background: "linear-gradient(135deg, #B87333, #D4944A)",
+            width: 60, height: 60, borderRadius: 14,
+            background: "linear-gradient(135deg, var(--accent-copper), #D4944A)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "1.1rem", fontWeight: 800, color: "#fff",
-          }}>
-            HH
-          </div>
-          <div>
-            <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 15, fontWeight: 700 }}>Hood Hymns</div>
-            <div style={{ fontSize: 10, color: "#9088A8", letterSpacing: "0.1em", textTransform: "uppercase" }}>Admin Panel</div>
+            fontSize: "1.3rem", fontWeight: 800, color: "#fff",
+            marginBottom: "1.5rem",
+            filter: "drop-shadow(0 0 20px rgba(184,115,51,0.3))",
+          }}>HH</div>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 700, marginBottom: "0.5rem" }}>
+            Hood Hymns Admin
+          </h1>
+          <p style={{ color: "var(--text-secondary)", marginBottom: "2rem" }}>
+            Sign in with your admin account to access the dashboard.
+          </p>
+
+          <div className="login-form">
+            {/* Google Sign In */}
+            <button className="login-btn login-btn--google" onClick={handleGoogleLogin} disabled={loginLoading}>
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Sign in with Google
+            </button>
+
+            <div className="login-divider">or</div>
+
+            {/* Email/Password */}
+            <form onSubmit={handleEmailLogin} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <input
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="Email Address"
+                autoComplete="email"
+                required
+              />
+              <input
+                type="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="Password"
+                autoComplete="current-password"
+                required
+              />
+              <button type="submit" className="login-btn" disabled={loginLoading}>
+                {loginLoading ? "Signing in..." : "Sign In →"}
+              </button>
+            </form>
+
+            {authError && <div className="error">{authError}</div>}
           </div>
         </div>
+      </>
+    );
+  }
 
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: "16px 10px", display: "flex", flexDirection: "column", gap: 2, overflowY: "auto" }}>
-          {SIDEBAR_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "11px 14px",
-                borderRadius: 10,
-                fontSize: 13.5,
-                fontWeight: activeView === item.id ? 600 : 500,
-                color: activeView === item.id ? "#B87333" : "rgba(255,255,255,0.55)",
-                background: activeView === item.id ? "rgba(184, 115, 51, 0.12)" : "transparent",
-                border: "none",
-                cursor: "pointer",
-                textAlign: "left" as const,
-                width: "100%",
-                transition: "all 0.2s",
-                fontFamily: "inherit",
-              }}
-            >
-              <span style={{ width: 22, textAlign: "center", fontSize: 16 }}>{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Footer */}
-        <div style={{ padding: "16px 14px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", gap: 8 }}>
-          <button
-            onClick={() => setAuthenticated(false)}
-            style={{
-              padding: 9, borderRadius: 8, fontSize: 13, fontWeight: 500,
-              color: "rgba(255,255,255,0.45)", border: "1px solid rgba(255,255,255,0.1)",
-              background: "transparent", cursor: "pointer", fontFamily: "inherit",
-              transition: "all 0.2s",
-            }}
-          >
-            🚪 Logout
+  // ════════════════════════════════════════════════════════════════
+  //  ACCESS DENIED
+  // ════════════════════════════════════════════════════════════════
+  if (!isAdmin) {
+    return (
+      <>
+        <style>{cssReset}</style>
+        <div className="hh-admin" id="access-denied" style={{ display: "flex" }}>
+          <div className="icon">🚫</div>
+          <h2>Access Denied</h2>
+          <p>
+            <strong>{user.email}</strong> is not an authorized admin account.
+            Contact the site owner for access.
+          </p>
+          <button className="login-btn" onClick={handleLogout} style={{ maxWidth: 200 }}>
+            Sign Out
           </button>
         </div>
-      </aside>
+      </>
+    );
+  }
 
-      {/* ── MAIN CONTENT ─────────────────────────────────────────── */}
-      <main style={{ flex: 1, marginLeft: 250, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        {/* Top bar */}
-        <header style={{
-          background: "rgba(14, 10, 26, 0.8)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          padding: "14px 28px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            {/* Mobile menu toggle */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              style={{
-                display: "none",
-                fontSize: 20, color: "#9088A8", background: "none", border: "none", cursor: "pointer",
-                // Will be shown via responsive styles injected below
-              }}
-              className="mobile-toggle"
-            >
-              ☰
-            </button>
-            <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700 }}>
-              {viewTitles[activeView]}
-            </h1>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ fontSize: 13, color: "#9088A8" }}>{todayStr}</span>
+  // ════════════════════════════════════════════════════════════════
+  //  MAIN DASHBOARD
+  // ════════════════════════════════════════════════════════════════
+  const isLoading = gumroadLoading || printifyLoading;
+
+  return (
+    <>
+      <style>{cssReset}</style>
+      <div className="hh-admin" id="dashboard">
+        {/* ── TOP BAR ── */}
+        <div className="topbar">
+          <div className="topbar__left">
             <div style={{
-              width: 36, height: 36, borderRadius: "50%",
-              background: "linear-gradient(135deg, #B87333, #6B21A8)",
-              color: "#fff", fontSize: 13, fontWeight: 700,
+              width: 36, height: 36, borderRadius: 10,
+              background: "linear-gradient(135deg, var(--accent-copper), #D4944A)",
               display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              CD
-            </div>
+              fontSize: "0.8rem", fontWeight: 800, color: "#fff",
+              filter: "drop-shadow(0 0 8px rgba(184,115,51,0.2))",
+            }}>HH</div>
+            <h1>Hood Hymns Publishing</h1>
+            <span className="topbar__badge">ADMIN</span>
           </div>
-        </header>
+          <div className="topbar__right">
+            {lastRefresh && (
+              <span className="topbar__timer">
+                Last updated: {lastRefresh.toLocaleTimeString()}
+              </span>
+            )}
+            {user.photoURL ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.photoURL}
+                alt="Avatar"
+                style={{ width: 32, height: 32, borderRadius: "50%", flexShrink: 0 }}
+              />
+            ) : (
+              <div className="topbar__avatar">{userInitials}</div>
+            )}
+            <span className="topbar__user">{user.displayName || user.email}</span>
+            <button className="topbar__logout" onClick={handleLogout}>Logout</button>
+          </div>
+        </div>
 
-        {/* View content */}
-        <div style={{ padding: 28, flex: 1 }}>
-          {/* ── DASHBOARD VIEW ─────────────────────────────────── */}
-          {activeView === "dashboard" && (
-            <div>
-              {/* KPI Cards */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 28 }}>
-                {[
-                  { icon: "💰", label: "Total Revenue", value: "$4,847.50", trend: "+23% this month", trendColor: "#10B981" },
-                  { icon: "📦", label: "Orders This Month", value: "42", trend: "+12 vs last month", trendColor: "#10B981" },
-                  { icon: "📧", label: "Subscribers", value: "318", trend: "+28 this week", trendColor: "#10B981" },
-                  { icon: "📚", label: "Books Sold", value: "186", trend: "76 digital · 110 print", trendColor: "#B87333" },
-                ].map((kpi) => (
-                  <div key={kpi.label} style={s.glassCard}>
-                    <div style={{ fontSize: 26, marginBottom: 10 }}>{kpi.icon}</div>
-                    <div style={{ fontSize: 11, color: "#9088A8", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>
-                      {kpi.label}
-                    </div>
-                    <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, marginTop: 4 }}>
-                      {kpi.value}
-                    </div>
-                    <div style={{ fontSize: 12, marginTop: 4, fontWeight: 500, color: kpi.trendColor }}>
-                      {kpi.trend}
-                    </div>
-                  </div>
-                ))}
-              </div>
+        {/* ── TAB NAVIGATION ── */}
+        <div className="tabs">
+          {TABS.map((tab) => (
+            <div
+              key={tab.id}
+              className={`tab ${activeTab === tab.id ? "active" : ""}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <span style={{ marginRight: 6 }}>{tab.icon}</span>
+              {tab.label}
+            </div>
+          ))}
+        </div>
 
-              {/* Recent Activity */}
-              <div style={s.glassCard}>
-                <h3 style={s.sectionTitle}>Recent Activity</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {RECENT_ACTIVITY.map((item, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 14,
-                        padding: "14px 0",
-                        borderBottom: i < RECENT_ACTIVITY.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
-                      }}
-                    >
-                      <span style={{ fontSize: 20, width: 32, textAlign: "center" }}>{item.icon}</span>
-                      <span style={{ flex: 1, fontSize: 13.5, color: "#CBD5E1" }}>{item.text}</span>
-                      <span style={{ fontSize: 12, color: "#9088A8", whiteSpace: "nowrap" }}>{item.time}</span>
-                    </div>
+        {/* ── CONTENT ── */}
+        <div className="content">
+          {/* Refresh Bar */}
+          <div className="refresh-bar">
+            <span className="refresh-bar__time">
+              {lastRefresh
+                ? `Data as of ${lastRefresh.toLocaleString()}`
+                : "Loading data..."}
+            </span>
+            <button
+              className="refresh-bar__btn"
+              onClick={fetchAll}
+              disabled={refreshing}
+            >
+              {refreshing ? "⟳ Refreshing..." : "⟳ Refresh Data"}
+            </button>
+          </div>
+
+          {/* ════════════════════════════════════════════════════════
+              DASHBOARD TAB
+          ════════════════════════════════════════════════════════ */}
+          {activeTab === "dashboard" && (
+            <div className="panel active">
+              {/* Stat Cards */}
+              {isLoading ? (
+                <div className="skeleton-grid">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="skeleton-card" />
                   ))}
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── ORDERS VIEW ────────────────────────────────────── */}
-          {activeView === "orders" && (
-            <div>
-              {/* Stripe banner */}
-              <div style={{
-                background: "linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(184, 115, 51, 0.08))",
-                border: "1px solid rgba(99, 102, 241, 0.25)",
-                borderRadius: 14, padding: "18px 24px",
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-                marginBottom: 24, flexWrap: "wrap", gap: 12,
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ fontSize: 24 }}>💳</span>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>Stripe API Connected</div>
-                    <div style={{ fontSize: 12, color: "#9088A8" }}>Live orders will sync automatically • Demo data shown below</div>
+              ) : (
+                <div className="summary-grid">
+                  {/* Revenue */}
+                  <div className="summary-card">
+                    <div className="summary-card__icon">💰</div>
+                    <div className="summary-card__label">Total Revenue</div>
+                    <div className="summary-card__value green">
+                      {formatCurrency(totalRevenue)}
+                    </div>
+                    <div className="summary-card__note">Gumroad sales</div>
+                  </div>
+                  {/* Orders */}
+                  <div className="summary-card">
+                    <div className="summary-card__icon">📦</div>
+                    <div className="summary-card__label">Total Orders</div>
+                    <div className="summary-card__value copper">
+                      {totalOrders}
+                    </div>
+                    <div className="summary-card__note">
+                      {totalGumroadSales} Gumroad · {totalPrintifyOrders} Printify
+                    </div>
+                  </div>
+                  {/* Products */}
+                  <div className="summary-card">
+                    <div className="summary-card__icon">🏷️</div>
+                    <div className="summary-card__label">Products Listed</div>
+                    <div className="summary-card__value blue">
+                      {totalProducts}
+                    </div>
+                    <div className="summary-card__note">
+                      {gumroad?.products?.length || 0} digital · {printify?.totalProducts || 0} merch
+                    </div>
+                  </div>
+                  {/* Cliff */}
+                  <div className="summary-card">
+                    <div className="summary-card__icon">🏔️</div>
+                    <div className="summary-card__label">Cliff Progress</div>
+                    <div className={`summary-card__value ${cliffReached ? "green" : "gold"}`}>
+                      {cliffReached ? "REACHED ✓" : `${cliffProgress.toFixed(0)}%`}
+                    </div>
+                    <div className="summary-card__note">
+                      {cliffReached
+                        ? `Graduated: ${graduationProgress.toFixed(0)}% → $10K`
+                        : `$${netProfit.toFixed(0)} / $${CLIFF_AMOUNT}`}
+                    </div>
                   </div>
                 </div>
-                <span style={{
-                  ...s.badge,
-                  background: "rgba(16, 185, 129, 0.12)",
-                  color: "#10B981",
-                }}>● Live</span>
-              </div>
+              )}
 
-              {/* Orders table */}
-              <div style={{
-                ...s.glassCard,
-                padding: 0,
-                overflowX: "auto" as const,
-              }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
-                  <thead>
-                    <tr>
-                      {["Order", "Customer", "Product", "Amount", "Date", "Status"].map((h) => (
-                        <th key={h} style={s.th}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {DEMO_ORDERS.map((order) => (
-                      <tr key={order.id}>
-                        <td style={s.td}><span style={{ fontWeight: 600, color: "#B87333" }}>{order.id}</span></td>
-                        <td style={s.td}>{order.customer}</td>
-                        <td style={s.td}>{order.product}</td>
-                        <td style={s.td}>{order.amount}</td>
-                        <td style={s.td}><span style={{ color: "#9088A8" }}>{order.date}</span></td>
-                        <td style={s.td}>
-                          <span style={{
-                            ...s.badge,
-                            ...(order.status === "Fulfilled" ? s.badgeGreen
-                              : order.status === "Shipped" ? s.badgeBlue
-                              : s.badgeAmber),
-                          }}>
-                            {order.status}
+              {/* Revenue Chart */}
+              <div className="section-header">
+                <h2>Monthly Revenue</h2>
+                <span>{last6Months.length > 0 ? "Last 6 months" : "No data yet"}</span>
+              </div>
+              {isLoading ? (
+                <div className="skeleton-table" />
+              ) : last6Months.length > 0 ? (
+                <div className="table-wrap" style={{ padding: "1.5rem" }}>
+                  <div style={{
+                    display: "flex", alignItems: "flex-end", gap: 8,
+                    height: 180, padding: "0.5rem 0",
+                  }}>
+                    {last6Months.map((m) => {
+                      const val = (monthlyData[m] || 0) / 100;
+                      const pct = (val / maxMonthlyRev) * 100;
+                      return (
+                        <div key={m} style={{
+                          flex: 1, display: "flex", flexDirection: "column",
+                          alignItems: "center", gap: 4, height: "100%", justifyContent: "flex-end",
+                        }}>
+                          <span style={{ fontSize: "0.7rem", color: "var(--accent-copper)", fontWeight: 600 }}>
+                            ${val.toFixed(0)}
                           </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* ── PRODUCTS VIEW ──────────────────────────────────── */}
-          {activeView === "products" && (
-            <div>
-              <p style={{ fontSize: 13, color: "#9088A8", marginBottom: 20 }}>
-                {products.length} products loaded from store data
-              </p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
-                {products.map((product) => (
-                  <div key={product.id} style={{ ...s.glassCard, display: "flex", flexDirection: "column", gap: 12 }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <div style={{
-                      width: "100%", height: 160, borderRadius: 10,
-                      background: "#140E24",
-                      backgroundImage: `url(${product.image})`,
-                      backgroundSize: "contain",
-                      backgroundPosition: "center",
-                      backgroundRepeat: "no-repeat",
-                    }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{product.title}</div>
-                      <div style={{ fontSize: 12, color: "#9088A8", marginBottom: 8 }}>{product.type}</div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: "#B87333" }}>
-                          {product.price}
-                        </span>
-                        <button
-                          onClick={() => setAvailability((prev) => ({ ...prev, [product.id]: !prev[product.id] }))}
-                          style={{
-                            padding: "5px 14px",
-                            borderRadius: 20,
-                            fontSize: 11,
-                            fontWeight: 600,
-                            border: "none",
-                            cursor: "pointer",
-                            fontFamily: "inherit",
-                            transition: "all 0.2s",
-                            background: availability[product.id]
-                              ? "rgba(16, 185, 129, 0.12)"
-                              : "rgba(239, 68, 68, 0.12)",
-                            color: availability[product.id] ? "#10B981" : "#EF4444",
-                          }}
-                        >
-                          {availability[product.id] ? "● Available" : "○ Unavailable"}
-                        </button>
-                      </div>
-                    </div>
-                    {product.paymentLink && (
-                      <div style={{ fontSize: 11, color: "#9088A8", borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 8 }}>
-                        Stripe Link ✅
-                      </div>
-                    )}
-                    {!product.paymentLink && (
-                      <div style={{ fontSize: 11, color: "#F59E0B", borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 8 }}>
-                        ⏳ No payment link
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── PRINTFUL VIEW ──────────────────────────────────── */}
-          {activeView === "printful" && (
-            <div>
-              {/* Status banner */}
-              <div style={{
-                background: "linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(184, 115, 51, 0.06))",
-                border: "1px solid rgba(16, 185, 129, 0.2)",
-                borderRadius: 14, padding: "18px 24px",
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-                marginBottom: 24, flexWrap: "wrap", gap: 12,
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ fontSize: 24 }}>🔗</span>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>Printful API Connected</div>
-                    <div style={{ fontSize: 12, color: "#9088A8" }}>9 products synced · Last sync: Today</div>
+                          <div style={{
+                            width: "100%", maxWidth: 60,
+                            height: `${Math.max(pct, 4)}%`,
+                            background: "linear-gradient(180deg, var(--accent-copper), rgba(184,115,51,0.3))",
+                            borderRadius: "6px 6px 2px 2px",
+                            transition: "height 0.5s ease",
+                          }} />
+                          <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>
+                            {monthLabel(m)}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-                <span style={{ ...s.badge, background: "rgba(16, 185, 129, 0.12)", color: "#10B981" }}>● Synced</span>
-              </div>
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-state__icon">📊</div>
+                  <p>No revenue data yet. Sales will appear here once processed.</p>
+                </div>
+              )}
 
-              {/* Products table */}
-              <div style={{ ...s.glassCard, padding: 0, overflowX: "auto" as const }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
-                  <thead>
-                    <tr>
-                      {["Product", "Printful ID", "Sync Status", "Actions"].map((h) => (
-                        <th key={h} style={s.th}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {PRINTFUL_PRODUCTS.map((p) => (
-                      <tr key={p.printfulId}>
-                        <td style={s.td}><span style={{ fontWeight: 600 }}>{p.name}</span></td>
-                        <td style={s.td}>
-                          <code style={{ background: "rgba(255,255,255,0.04)", padding: "2px 8px", borderRadius: 5, fontSize: 12, color: "#B87333" }}>
-                            {p.printfulId}
-                          </code>
-                        </td>
-                        <td style={s.td}>
-                          <span style={{ ...s.badge, ...s.badgeGreen }}>● Synced</span>
-                        </td>
-                        <td style={s.td}>
-                          <button style={{
-                            padding: "5px 12px", borderRadius: 6, fontSize: 11, fontWeight: 500,
-                            color: "#9088A8", border: "1px solid rgba(255,255,255,0.08)",
-                            background: "transparent", cursor: "pointer", fontFamily: "inherit",
-                          }}>
-                            Re-sync
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {/* Recent Orders */}
+              <div className="section-header" style={{ marginTop: "2rem" }}>
+                <h2>Recent Orders</h2>
+                <span>{combinedOrders.length} total</span>
               </div>
-
-              <div style={{ marginTop: 20, padding: 18, background: "rgba(14, 10, 26, 0.5)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.04)", fontSize: 13, color: "#9088A8", lineHeight: 1.7 }}>
-                <strong style={{ color: "#F0EDE8" }}>ID Range:</strong> 436109640 – 436109838 &nbsp;·&nbsp;
-                <strong style={{ color: "#F0EDE8" }}>Store:</strong> Hood Hymns Publishing &nbsp;·&nbsp;
-                <strong style={{ color: "#F0EDE8" }}>Fulfillment:</strong> Printful on-demand
-              </div>
+              {isLoading ? (
+                <div className="skeleton-table" />
+              ) : combinedOrders.length > 0 ? (
+                <div className="table-wrap">
+                  <div className="table-scroll">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Customer</th>
+                          <th>Product</th>
+                          <th>Amount</th>
+                          <th>Source</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {combinedOrders.slice(0, 10).map((o, i) => (
+                          <tr key={`${o.id}-${i}`}>
+                            <td style={{ fontWeight: 600, color: "var(--accent-copper)" }}>{o.id}</td>
+                            <td>{o.customer}</td>
+                            <td>{o.product}</td>
+                            <td className="amount positive">{formatCurrency(o.amount)}</td>
+                            <td>
+                              <span className={`badge badge--${o.source === "Gumroad" ? "gumroad" : "printify"}`}>
+                                {o.source}
+                              </span>
+                            </td>
+                            <td style={{ color: "var(--text-muted)" }}>{formatDate(o.date)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-state__icon">📦</div>
+                  <p>No orders yet. Orders from Gumroad and Printify will appear here.</p>
+                </div>
+              )}
             </div>
           )}
 
-          {/* ── SUBSCRIBERS VIEW ───────────────────────────────── */}
-          {activeView === "subscribers" && (
-            <div>
-              {/* KPIs */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 28 }}>
-                {[
-                  { icon: "📧", label: "Total Subscribers", value: "318", color: "#B87333" },
-                  { icon: "📈", label: "Growth (30d)", value: "+47", color: "#10B981" },
-                  { icon: "📬", label: "Open Rate", value: "34.2%", color: "#3B82F6" },
-                  { icon: "🖱️", label: "Click Rate", value: "8.7%", color: "#8B5CF6" },
-                ].map((kpi) => (
-                  <div key={kpi.label} style={s.glassCard}>
-                    <div style={{ fontSize: 26, marginBottom: 10 }}>{kpi.icon}</div>
-                    <div style={{ fontSize: 11, color: "#9088A8", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>
-                      {kpi.label}
-                    </div>
-                    <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, marginTop: 4, color: kpi.color }}>
-                      {kpi.value}
-                    </div>
-                  </div>
-                ))}
+          {/* ════════════════════════════════════════════════════════
+              ORDERS TAB
+          ════════════════════════════════════════════════════════ */}
+          {activeTab === "orders" && (
+            <div className="panel active">
+              <div className="section-header">
+                <h2>All Orders</h2>
+                <span>{combinedOrders.length} orders from Gumroad + Printify</span>
               </div>
+              {isLoading ? (
+                <div className="skeleton-table" style={{ height: 400 }} />
+              ) : combinedOrders.length > 0 ? (
+                <div className="table-wrap">
+                  <div className="table-scroll">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Customer</th>
+                          <th>Product</th>
+                          <th>Amount</th>
+                          <th>Date</th>
+                          <th>Source</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {combinedOrders.map((o, i) => (
+                          <tr key={`${o.id}-${i}`}>
+                            <td style={{ fontWeight: 600, color: "var(--accent-copper)" }}>{o.id}</td>
+                            <td>{o.customer}</td>
+                            <td>{o.product}</td>
+                            <td className="amount positive">{formatCurrency(o.amount)}</td>
+                            <td style={{ color: "var(--text-muted)" }}>{formatDate(o.date)}</td>
+                            <td>
+                              <span className={`badge badge--${o.source === "Gumroad" ? "gumroad" : "printify"}`}>
+                                {o.source}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={`badge badge--${o.status.toLowerCase()}`}>
+                                {o.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-state__icon">📦</div>
+                  <p>No orders yet. Connect your Gumroad and Printify accounts to see orders.</p>
+                </div>
+              )}
+            </div>
+          )}
 
-              {/* Growth chart placeholder */}
-              <div style={s.glassCard}>
-                <h3 style={s.sectionTitle}>Subscriber Growth</h3>
-                <div style={{
-                  height: 200,
-                  display: "flex",
-                  alignItems: "flex-end",
-                  gap: 8,
-                  padding: "20px 0",
-                }}>
-                  {[28, 35, 42, 39, 56, 63, 71, 78, 85, 94, 102, 118].map((v, i) => (
-                    <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                      <div style={{
-                        width: "100%",
-                        height: `${(v / 118) * 160}px`,
-                        background: `linear-gradient(180deg, #B87333, rgba(184, 115, 51, 0.3))`,
-                        borderRadius: "6px 6px 2px 2px",
-                        transition: "height 0.5s ease",
-                        minHeight: 4,
-                      }} />
-                      <span style={{ fontSize: 9, color: "#9088A8" }}>
-                        {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}
-                      </span>
-                    </div>
+          {/* ════════════════════════════════════════════════════════
+              PRODUCTS TAB
+          ════════════════════════════════════════════════════════ */}
+          {activeTab === "products" && (
+            <div className="panel active">
+              <div className="section-header">
+                <h2>All Products</h2>
+                <span>{totalProducts} across Gumroad + Printify</span>
+              </div>
+              {isLoading ? (
+                <div className="skeleton-grid">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="skeleton-card" style={{ height: 200 }} />
                   ))}
                 </div>
-              </div>
+              ) : (
+                <div className="product-grid">
+                  {/* Gumroad Products */}
+                  {(gumroad?.products || []).map((p) => (
+                    <div key={`gr-${p.id}`} className="product-card">
+                      {p.thumbnail_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.thumbnail_url} alt={p.name} />
+                      ) : (
+                        <div style={{
+                          width: "100%", height: 140, borderRadius: "var(--radius-sm)",
+                          background: "rgba(255,255,255,0.03)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "2rem", marginBottom: "0.75rem",
+                        }}>📚</div>
+                      )}
+                      <div className="product-card__name">{p.name}</div>
+                      <div className="product-card__meta">
+                        <span className="badge badge--gumroad" style={{ marginRight: 6 }}>Gumroad</span>
+                        <span style={{ color: "var(--accent-copper)", fontWeight: 600 }}>
+                          {p.formatted_price || `$${(p.price / 100).toFixed(2)}`}
+                        </span>
+                      </div>
+                      {p.short_url && (
+                        <a
+                          href={p.short_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="product-card__link"
+                        >
+                          View on Gumroad ↗
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                  {/* Printify Products */}
+                  {(printify?.products || []).map((p) => (
+                    <div key={`pf-${p.id}`} className="product-card">
+                      {p.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.image} alt={p.title} />
+                      ) : (
+                        <div style={{
+                          width: "100%", height: 140, borderRadius: "var(--radius-sm)",
+                          background: "rgba(255,255,255,0.03)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "2rem", marginBottom: "0.75rem",
+                        }}>👕</div>
+                      )}
+                      <div className="product-card__name">{p.title}</div>
+                      <div className="product-card__meta">
+                        <span className="badge badge--printify" style={{ marginRight: 6 }}>Printify</span>
+                        <span style={{ color: "var(--accent-copper)", fontWeight: 600 }}>
+                          ${p.minPrice.toFixed(2)}+
+                        </span>
+                      </div>
+                      <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: 4 }}>
+                        {p.variants} variants
+                      </div>
+                    </div>
+                  ))}
+                  {totalProducts === 0 && (
+                    <div className="empty-state" style={{ gridColumn: "1/-1" }}>
+                      <div className="empty-state__icon">🏷️</div>
+                      <p>No products found. Add products on Gumroad or Printify.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
-              {/* Mailchimp CTA */}
-              <div style={{
-                marginTop: 24,
-                background: "linear-gradient(135deg, rgba(255, 199, 0, 0.08), rgba(184, 115, 51, 0.06))",
-                border: "1px solid rgba(255, 199, 0, 0.2)",
-                borderRadius: 14, padding: "24px",
-                textAlign: "center" as const,
+          {/* ════════════════════════════════════════════════════════
+              MERCH TAB
+          ════════════════════════════════════════════════════════ */}
+          {activeTab === "merch" && (
+            <div className="panel active">
+              <div className="section-header">
+                <h2>Printify Merch</h2>
+                <span>{printify?.totalProducts || 0} products</span>
+              </div>
+              {/* Status banner */}
+              <div className="seed-banner" style={{
+                background: printifyError
+                  ? "linear-gradient(135deg, rgba(239,68,68,0.1), rgba(239,68,68,0.05))"
+                  : "linear-gradient(135deg, rgba(16,185,129,0.08), rgba(184,115,51,0.06))",
+                borderColor: printifyError ? "rgba(239,68,68,0.2)" : "rgba(16,185,129,0.2)",
+                justifyContent: "space-between",
               }}>
-                <span style={{ fontSize: 36, display: "block", marginBottom: 12 }}>📮</span>
-                <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 8 }}>Connect Mailchimp</div>
-                <div style={{ fontSize: 13, color: "#9088A8", marginBottom: 16, maxWidth: 400, margin: "0 auto 16px" }}>
-                  Sync your subscriber list with Mailchimp for automated campaigns, welcome sequences, and launch announcements.
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <span style={{ fontSize: "1.5rem" }}>{printifyError ? "⚠️" : "🔗"}</span>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>
+                      {printifyError ? "Printify Disconnected" : "Printify Connected"}
+                    </div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                      {printifyError || `${printify?.totalProducts || 0} products synced · Shop ID: 28018533`}
+                    </div>
+                  </div>
                 </div>
-                <button style={{ ...s.btnCopper, padding: "12px 28px" }}>
-                  Connect Mailchimp →
-                </button>
+                <span className={`badge ${printifyError ? "badge--error" : "badge--fulfilled"}`}>
+                  {printifyError ? "● Error" : "● Synced"}
+                </span>
+              </div>
+
+              {printifyLoading ? (
+                <div className="skeleton-grid">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="skeleton-card" style={{ height: 240 }} />
+                  ))}
+                </div>
+              ) : (
+                <div className="product-grid">
+                  {(printify?.products || []).map((p) => (
+                    <div key={p.id} className="product-card">
+                      {p.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.image} alt={p.title} />
+                      ) : (
+                        <div style={{
+                          width: "100%", height: 140, borderRadius: "var(--radius-sm)",
+                          background: "rgba(255,255,255,0.03)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "2.5rem", marginBottom: "0.75rem",
+                        }}>👕</div>
+                      )}
+                      <div className="product-card__name">{p.title}</div>
+                      <div className="product-card__meta">
+                        <span style={{ color: "var(--accent-copper)", fontWeight: 700, fontSize: "1rem" }}>
+                          ${p.minPrice.toFixed(2)}
+                        </span>
+                        <span style={{ marginLeft: 8 }}>· {p.variants} variants</span>
+                      </div>
+                      <a
+                        href={`https://printify.com/app/products/${p.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="product-card__link"
+                      >
+                        Edit on Printify ↗
+                      </a>
+                    </div>
+                  ))}
+                  {(printify?.products?.length || 0) === 0 && !printifyError && (
+                    <div className="empty-state" style={{ gridColumn: "1/-1" }}>
+                      <div className="empty-state__icon">👕</div>
+                      <p>No merch products found. Create products on Printify to get started.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Quick link */}
+              <div style={{
+                marginTop: "1.5rem", textAlign: "center",
+              }}>
+                <a
+                  href="https://printify.com/app/products"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="refresh-bar__btn"
+                  style={{ textDecoration: "none", display: "inline-block" }}
+                >
+                  Open Printify Dashboard ↗
+                </a>
               </div>
             </div>
           )}
 
-          {/* ── TESTIMONIALS VIEW ──────────────────────────────── */}
-          {activeView === "testimonials" && (
-            <div style={{ maxWidth: 560 }}>
-              <p style={s.tagline}>Hood Hymns Publishing</p>
-              <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.8rem", fontWeight: 700, textAlign: "center", marginBottom: 8 }}>
-                Testimonial of the Day
-              </h2>
-              <p style={{ fontSize: "0.9rem", color: "#9088A8", textAlign: "center", marginBottom: 36 }}>
-                Record your message for the community
-              </p>
-
-              {/* Success state */}
-              {success && (
-                <div style={s.successBanner}>
-                  <span style={{ fontSize: "1.5rem" }}>✅</span>
-                  <div>
-                    <p style={{ fontWeight: 700, marginBottom: 4 }}>Testimonial Published!</p>
-                    <p style={{ fontSize: "0.85rem", color: "#9088A8" }}>
-                      Your message is now live on the homepage.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Record / Stop buttons */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, marginBottom: 24 }}>
-                {!isRecording ? (
-                  <button onClick={startRecording} style={s.recordBtn} title="Start Recording">
-                    <span style={s.recordDot} />
-                    <span>Record</span>
-                  </button>
-                ) : (
-                  <button onClick={stopRecording} style={s.stopBtn} title="Stop Recording">
-                    <span style={s.stopSquare} />
-                    <span>Stop</span>
-                  </button>
-                )}
-                {isRecording && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "1.1rem", fontVariantNumeric: "tabular-nums", color: "#dc2626", fontWeight: 600 }}>
-                    <span style={s.liveDot} />
-                    <span>{formatTime(recordingTime)}</span>
-                  </div>
-                )}
+          {/* ════════════════════════════════════════════════════════
+              ANALYTICS TAB
+          ════════════════════════════════════════════════════════ */}
+          {activeTab === "analytics" && (
+            <div className="panel active">
+              <div className="section-header">
+                <h2>Site Analytics</h2>
+                <span>Real-time from Firestore</span>
               </div>
 
-              {/* Audio preview */}
-              {audioUrl && (
-                <div style={s.previewSection}>
-                  <p style={{ fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#9088A8", marginBottom: 12 }}>
-                    Preview Recording
+              {analyticsLoading ? (
+                <div className="skeleton-table" style={{ height: 300 }} />
+              ) : analytics.length > 0 ? (
+                <>
+                  {/* Summary Cards */}
+                  <div className="summary-grid">
+                    <div className="summary-card">
+                      <div className="summary-card__icon">👁️</div>
+                      <div className="summary-card__label">Total Page Views</div>
+                      <div className="summary-card__value copper">
+                        {analytics.reduce((sum, a) => sum + (a.views || 0), 0).toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="summary-card">
+                      <div className="summary-card__icon">👤</div>
+                      <div className="summary-card__label">Unique Visitors</div>
+                      <div className="summary-card__value blue">
+                        {analytics.reduce((sum, a) => sum + (a.visitors || 0), 0).toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="summary-card">
+                      <div className="summary-card__icon">📄</div>
+                      <div className="summary-card__label">Pages Tracked</div>
+                      <div className="summary-card__value gold">
+                        {new Set(analytics.map((a) => a.page)).size}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Top Pages Table */}
+                  <div className="section-header" style={{ marginTop: "1.5rem" }}>
+                    <h2>Top Pages</h2>
+                  </div>
+                  <div className="table-wrap">
+                    <div className="table-scroll">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Page</th>
+                            <th>Views</th>
+                            <th>Visitors</th>
+                            <th>Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {analytics.slice(0, 20).map((a, i) => (
+                            <tr key={i}>
+                              <td style={{ fontWeight: 600 }}>{a.page}</td>
+                              <td className="amount">{a.views?.toLocaleString()}</td>
+                              <td className="amount">{a.visitors?.toLocaleString()}</td>
+                              <td style={{ color: "var(--text-muted)" }}>{a.date}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="empty-state" style={{ padding: "3rem 2rem" }}>
+                  <div className="empty-state__icon">📊</div>
+                  <h3 style={{ marginBottom: "1rem", fontWeight: 700 }}>Analytics Not Set Up Yet</h3>
+                  <p style={{ maxWidth: 500, margin: "0 auto", lineHeight: 1.7 }}>
+                    To start tracking analytics, create a Firestore collection called{" "}
+                    <code style={{
+                      background: "rgba(184,115,51,0.15)", padding: "2px 8px",
+                      borderRadius: 4, color: "var(--accent-copper)",
+                    }}>analytics</code>{" "}
+                    with documents containing:
                   </p>
-                  <audio ref={audioPreviewRef} src={audioUrl} controls style={{ width: "100%", marginBottom: 12, borderRadius: 8 }} />
-                  <button
-                    onClick={() => { setAudioBlob(null); setAudioUrl(null); setRecordingTime(0); }}
-                    style={s.btnGhost}
-                  >
-                    Discard &amp; Re-record
-                  </button>
+                  <div style={{
+                    marginTop: "1.5rem", textAlign: "left", maxWidth: 400,
+                    margin: "1.5rem auto 0", background: "var(--bg-card-alt)",
+                    borderRadius: "var(--radius-sm)", padding: "1rem 1.25rem",
+                    fontSize: "0.8rem", fontFamily: "monospace", color: "var(--text-secondary)",
+                  }}>
+                    {`{`}<br/>
+                    {`  "page": "/",`}<br/>
+                    {`  "views": 142,`}<br/>
+                    {`  "visitors": 89,`}<br/>
+                    {`  "date": "2026-06-23"`}<br/>
+                    {`}`}
+                  </div>
                 </div>
               )}
-
-              {/* Text area */}
-              <div style={{ marginBottom: 24 }}>
-                <label style={s.label}>Written Message (Optional)</label>
-                <textarea
-                  value={textMessage}
-                  onChange={(e) => setTextMessage(e.target.value)}
-                  placeholder="Add a written message to accompany the audio, or submit text-only..."
-                  style={s.textarea}
-                  rows={4}
-                />
-              </div>
-
-              {/* Submit */}
-              <button
-                onClick={handleSubmit}
-                disabled={submitting || (!audioBlob && !textMessage.trim())}
-                style={{
-                  ...s.btnCopper,
-                  width: "100%",
-                  opacity: submitting || (!audioBlob && !textMessage.trim()) ? 0.5 : 1,
-                  cursor: submitting || (!audioBlob && !textMessage.trim()) ? "not-allowed" : "pointer",
-                }}
-              >
-                {submitting ? "Processing with Gemini AI…" : "Publish Testimonial"}
-              </button>
-
-              {error && <p style={s.errorText}>{error}</p>}
             </div>
           )}
 
-          {/* ── BOOKS VIEW ─────────────────────────────────────── */}
-          {activeView === "books" && (
-            <div>
-              <p style={{ fontSize: 13, color: "#9088A8", marginBottom: 24 }}>
-                Manuscript pipeline and publication status
-              </p>
+          {/* ════════════════════════════════════════════════════════
+              CLIFF TRACKER TAB
+          ════════════════════════════════════════════════════════ */}
+          {activeTab === "cliff" && (
+            <div className="panel active">
+              <div className="section-header">
+                <h2>Think! Ventures Give-Back Model</h2>
+                <span>Cliff Progress Tracker</span>
+              </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {BOOK_PIPELINE.map((book) => (
+              {cliffLoading && !cliffData ? (
+                <div className="skeleton-grid">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="skeleton-card" style={{ height: 160 }} />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {/* Overview Cards */}
+                  <div className="summary-grid">
+                    <div className="summary-card">
+                      <div className="summary-card__icon">💰</div>
+                      <div className="summary-card__label">Cumulative Revenue</div>
+                      <div className="summary-card__value green">{formatCurrency(totalRevenue)}</div>
+                    </div>
+                    <div className="summary-card">
+                      <div className="summary-card__icon">📊</div>
+                      <div className="summary-card__label">Est. Net Profit</div>
+                      <div className="summary-card__value copper">{formatCurrency(netProfit)}</div>
+                      <div className="summary-card__note">~{((1 - estimatedExpenseRate) * 100).toFixed(0)}% margin</div>
+                    </div>
+                    <div className="summary-card">
+                      <div className="summary-card__icon">🎯</div>
+                      <div className="summary-card__label">Cliff Status</div>
+                      <div className={`summary-card__value ${cliffReached ? "green" : "gold"}`}>
+                        {cliffReached ? "REACHED ✓" : "IN PROGRESS"}
+                      </div>
+                    </div>
+                    <div className="summary-card">
+                      <div className="summary-card__icon">🎓</div>
+                      <div className="summary-card__label">Graduation</div>
+                      <div className={`summary-card__value ${graduated ? "green" : "blue"}`}>
+                        {graduated ? "GRADUATED 🎓" : `${graduationProgress.toFixed(0)}%`}
+                      </div>
+                      <div className="summary-card__note">${totalContributed.toLocaleString()} / $10,000</div>
+                    </div>
+                  </div>
+
+                  {/* Phase Breakdown */}
+                  <div className="rec-card">
+                    <h3>📋 How the Give-Back Model Works</h3>
+
+                    {/* Phase 1 */}
+                    <div style={{ marginBottom: "1.5rem" }}>
+                      <div style={{
+                        display: "flex", justifyContent: "space-between", alignItems: "center",
+                        marginBottom: "0.5rem",
+                      }}>
+                        <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>
+                          Phase 1: The Cliff — $0 → $2,500 Net Profit
+                        </span>
+                        <span className={`badge ${cliffReached ? "badge--fulfilled" : "badge--pending"}`}>
+                          {cliffReached ? "Complete" : `${cliffProgress.toFixed(0)}%`}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "0.75rem" }}>
+                        <strong>Keep 100%</strong> of all net profit until you reach $2,500 cumulative.
+                        No give-back obligation during this phase.
+                      </p>
+                      <div className="progress-bar">
+                        <div className="progress-bar__fill" style={{ width: `${cliffProgress}%` }} />
+                      </div>
+                    </div>
+
+                    {/* Phase 2 */}
+                    <div style={{ marginBottom: "1.5rem" }}>
+                      <div style={{
+                        display: "flex", justifyContent: "space-between", alignItems: "center",
+                        marginBottom: "0.5rem",
+                      }}>
+                        <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>
+                          Phase 2: Quarterly Give-Back — 10% of Net Profit
+                        </span>
+                        <span className={`badge ${cliffReached && !graduated ? "badge--in-progress" : cliffReached ? "badge--fulfilled" : "badge--not-started"}`}>
+                          {graduated ? "Complete" : cliffReached ? "Active" : "Locked"}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                        After the cliff, contribute 10% of net profit each quarter to Think! Ventures.
+                      </p>
+                    </div>
+
+                    {/* Phase 3 */}
+                    <div>
+                      <div style={{
+                        display: "flex", justifyContent: "space-between", alignItems: "center",
+                        marginBottom: "0.5rem",
+                      }}>
+                        <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>
+                          Phase 3: Graduation — $10,000 Total Contributed
+                        </span>
+                        <span className={`badge ${graduated ? "badge--fulfilled" : "badge--not-started"}`}>
+                          {graduated ? "🎓 Graduated" : "Locked"}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "0.75rem" }}>
+                        Once total contributions reach $10,000, you&apos;re fully graduated.
+                        No further obligations. Keep 100% forever.
+                      </p>
+                      <div className="progress-bar">
+                        <div className="progress-bar__fill" style={{
+                          width: `${graduationProgress}%`,
+                          background: "linear-gradient(90deg, var(--accent-blue), var(--accent-green))",
+                        }} />
+                      </div>
+                      <div style={{
+                        display: "flex", justifyContent: "space-between",
+                        fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.35rem",
+                      }}>
+                        <span>${totalContributed.toLocaleString()} contributed</span>
+                        <span>$10,000 target</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════
+              SETTINGS TAB
+          ════════════════════════════════════════════════════════ */}
+          {activeTab === "settings" && (
+            <div className="panel active">
+              {/* API Connection Status */}
+              <div className="section-header">
+                <h2>API Connections</h2>
+              </div>
+              <div className="table-wrap" style={{ marginBottom: "2rem" }}>
+                {[
+                  {
+                    name: "Gumroad",
+                    icon: "🛒",
+                    connected: !gumroadError && !!gumroad?.success,
+                    detail: gumroadError || `${gumroad?.totalSales || 0} sales · ${gumroad?.products?.length || 0} products`,
+                    error: gumroadError,
+                  },
+                  {
+                    name: "Printify",
+                    icon: "👕",
+                    connected: !printifyError && !!printify?.success,
+                    detail: printifyError || `${printify?.totalProducts || 0} products · Shop ID: 28018533`,
+                    error: printifyError,
+                  },
+                  {
+                    name: "Firebase",
+                    icon: "🔥",
+                    connected: true,
+                    detail: `Project: ${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "hood-hymns"}`,
+                    error: "",
+                  },
+                ].map((api, i, arr) => (
                   <div
-                    key={book.title}
+                    key={api.name}
                     style={{
-                      ...s.glassCard,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 16,
-                      borderLeft: `3px solid ${
-                        book.status === "published" ? "#10B981"
-                        : book.status === "in-progress" ? "#F59E0B"
-                        : "#9088A8"
-                      }`,
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      padding: "1rem 1.25rem",
+                      borderBottom: i < arr.length - 1 ? "1px solid var(--border)" : "none",
                     }}
                   >
-                    <span style={{ fontSize: 28 }}>{book.icon}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}>{book.title}</div>
-                      <div style={{ fontSize: 13, color: "#9088A8" }}>{book.detail}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      <span style={{ fontSize: "1.5rem" }}>{api.icon}</span>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{api.name}</div>
+                        <div style={{ fontSize: "0.75rem", color: api.error ? "var(--accent-red)" : "var(--text-muted)" }}>
+                          {api.detail}
+                        </div>
+                      </div>
                     </div>
-                    <span style={{
-                      ...s.badge,
-                      ...(book.status === "published" ? s.badgeGreen
-                        : book.status === "in-progress" ? s.badgeAmber
-                        : s.badgeMuted),
-                    }}>
-                      {book.status === "published" ? "Published"
-                        : book.status === "in-progress" ? "In Progress"
-                        : "Planned"}
+                    <span className={`badge ${api.connected ? "badge--fulfilled" : "badge--error"}`}>
+                      {api.connected ? "● Connected" : "● Error"}
                     </span>
                   </div>
                 ))}
               </div>
 
-              {/* Workflow summary */}
-              <div style={{ ...s.glassCard, marginTop: 24 }}>
-                <h3 style={s.sectionTitle}>Production Pipeline</h3>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginTop: 16 }}>
-                  {[
-                    { step: "1. Draft", icon: "✍️", desc: "Manuscript expansion" },
-                    { step: "2. Edit", icon: "📝", desc: "Proof & chapter splits" },
-                    { step: "3. Audio", icon: "🎙️", desc: "Gemini TTS audiobook" },
-                    { step: "4. E-Book", icon: "📱", desc: "EPUB + PDF gen" },
-                    { step: "5. Print", icon: "📖", desc: "IngramSpark / KDP" },
-                    { step: "6. Launch", icon: "🚀", desc: "Stripe + marketing" },
-                  ].map((s2) => (
-                    <div key={s2.step} style={{
-                      textAlign: "center",
-                      padding: 16,
-                      background: "rgba(255,255,255,0.02)",
-                      borderRadius: 10,
-                      border: "1px solid rgba(255,255,255,0.04)",
-                    }}>
-                      <div style={{ fontSize: 24, marginBottom: 8 }}>{s2.icon}</div>
-                      <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 4, color: "#B87333" }}>{s2.step}</div>
-                      <div style={{ fontSize: 11, color: "#9088A8" }}>{s2.desc}</div>
-                    </div>
-                  ))}
-                </div>
+              {/* Account Info */}
+              <div className="section-header">
+                <h2>Account Info</h2>
               </div>
-            </div>
-          )}
-
-          {/* ── SETTINGS VIEW ──────────────────────────────────── */}
-          {activeView === "settings" && (
-            <div>
-              {/* API Status */}
-              <div style={s.glassCard}>
-                <h3 style={s.sectionTitle}>API Integrations</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {[
-                    { name: "Stripe", status: "connected", icon: "💳", detail: "Payments & subscriptions" },
-                    { name: "Printful", status: "connected", icon: "👕", detail: "On-demand fulfillment" },
-                    { name: "Mailchimp", status: "pending", icon: "📧", detail: "Email marketing" },
-                    { name: "Gemini AI", status: "connected", icon: "🤖", detail: "TTS, content generation" },
-                  ].map((api, i, arr) => (
-                    <div
-                      key={api.name}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "16px 0",
-                        borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <span style={{ fontSize: 20 }}>{api.icon}</span>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: 14 }}>{api.name}</div>
-                          <div style={{ fontSize: 12, color: "#9088A8" }}>{api.detail}</div>
-                        </div>
-                      </div>
-                      <span style={{
-                        ...s.badge,
-                        ...(api.status === "connected" ? s.badgeGreen : s.badgeAmber),
+              <div className="table-wrap" style={{ marginBottom: "2rem" }}>
+                <div style={{ padding: "1.25rem" }}>
+                  <div style={{
+                    display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                    gap: "1rem",
+                  }}>
+                    {[
+                      { label: "Signed in as", value: user.email || "Unknown" },
+                      { label: "Display Name", value: user.displayName || "—" },
+                      { label: "Role", value: "Admin" },
+                      { label: "Auth Provider", value: user.providerData?.[0]?.providerId === "google.com" ? "Google" : "Email" },
+                      { label: "Platform", value: "Netlify" },
+                      { label: "Framework", value: "Next.js 15" },
+                      { label: "Domain", value: "hoodhymns.com" },
+                      { label: "Build Status", value: "Active ✅" },
+                    ].map((info) => (
+                      <div key={info.label} style={{
+                        padding: "0.75rem 1rem",
+                        background: "var(--bg-card-alt)",
+                        borderRadius: "var(--radius-sm)",
+                        border: "1px solid var(--border)",
                       }}>
-                        {api.status === "connected" ? "✅ Connected" : "⏳ Pending"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Deployment info */}
-              <div style={{ ...s.glassCard, marginTop: 16 }}>
-                <h3 style={s.sectionTitle}>Deployment</h3>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginTop: 8 }}>
-                  {[
-                    { label: "Platform", value: "Netlify" },
-                    { label: "Framework", value: "Next.js 15" },
-                    { label: "Domain", value: "hoodhymns.com" },
-                    { label: "SSL", value: "Active ✅" },
-                    { label: "GitHub Repo", value: "Connected" },
-                    { label: "Build Status", value: "Passing ✅" },
-                  ].map((info) => (
-                    <div key={info.label} style={{
-                      padding: "12px 16px",
-                      background: "rgba(255,255,255,0.02)",
-                      borderRadius: 8,
-                      border: "1px solid rgba(255,255,255,0.04)",
-                    }}>
-                      <div style={{ fontSize: 11, color: "#9088A8", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600, marginBottom: 4 }}>
-                        {info.label}
+                        <div style={{
+                          fontSize: "0.65rem", color: "var(--text-muted)",
+                          textTransform: "uppercase", letterSpacing: "0.05em",
+                          fontWeight: 600, marginBottom: "0.25rem",
+                        }}>{info.label}</div>
+                        <div style={{ fontSize: "0.85rem", fontWeight: 600, wordBreak: "break-all" }}>{info.value}</div>
                       </div>
-                      <div style={{ fontSize: 14, fontWeight: 600 }}>{info.value}</div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Quick Links */}
-              <div style={{ ...s.glassCard, marginTop: 16 }}>
-                <h3 style={s.sectionTitle}>Quick Links</h3>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
-                  {[
-                    { label: "Stripe Dashboard", url: "https://dashboard.stripe.com" },
-                    { label: "Printful Dashboard", url: "https://www.printful.com/dashboard" },
-                    { label: "Netlify Deploy", url: "https://app.netlify.com" },
-                    { label: "GitHub Repo", url: "https://github.com" },
-                    { label: "Google Analytics", url: "https://analytics.google.com" },
-                  ].map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        padding: "8px 16px",
-                        borderRadius: 8,
-                        fontSize: 13,
-                        fontWeight: 500,
-                        color: "#B87333",
-                        border: "1px solid rgba(184, 115, 51, 0.25)",
-                        textDecoration: "none",
-                        transition: "all 0.2s",
-                        background: "rgba(184, 115, 51, 0.06)",
-                      }}
-                    >
-                      {link.label} ↗
-                    </a>
-                  ))}
-                </div>
+              <div className="section-header">
+                <h2>Quick Links</h2>
+              </div>
+              <div style={{
+                display: "flex", flexWrap: "wrap", gap: "0.5rem",
+              }}>
+                {[
+                  { label: "Gumroad Dashboard", url: "https://app.gumroad.com/dashboard" },
+                  { label: "Printify Dashboard", url: "https://printify.com/app/products" },
+                  { label: "Firebase Console", url: `https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "hood-hymns"}/overview` },
+                  { label: "Netlify Deploys", url: "https://app.netlify.com" },
+                  { label: "GitHub Repo", url: "https://github.com/ncatlandarch-droid/hood-hymns-publishing" },
+                  { label: "Stripe Dashboard", url: "https://dashboard.stripe.com" },
+                  { label: "Google Analytics", url: "https://analytics.google.com" },
+                ].map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      padding: "0.5rem 1rem",
+                      borderRadius: "var(--radius-sm)",
+                      fontSize: "0.8rem",
+                      fontWeight: 500,
+                      color: "var(--accent-copper)",
+                      border: "1px solid rgba(184,115,51,0.25)",
+                      textDecoration: "none",
+                      transition: "all 0.2s",
+                      background: "rgba(184,115,51,0.06)",
+                    }}
+                  >
+                    {link.label} ↗
+                  </a>
+                ))}
               </div>
             </div>
           )}
-        </div>
-      </main>
 
-      {/* ── RESPONSIVE STYLES ─────────────────────────────────── */}
-      <style>{`
-        @media (max-width: 768px) {
-          main { margin-left: 0 !important; }
-          aside { transform: translateX(-100%) !important; }
-          aside[style*="translateX(0)"] { transform: translateX(0) !important; }
-          .mobile-toggle { display: block !important; }
-        }
-        @keyframes pulseRecord {
-          0%, 100% { opacity: 0.5; transform: scale(0.95); }
-          50% { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
+          {/* Error States */}
+          {gumroadError && activeTab === "dashboard" && (
+            <div className="error-state" style={{ marginTop: "1rem" }}>
+              <div className="error-state__icon">⚠️</div>
+              <div className="error-state__title">Gumroad Connection Error</div>
+              <div className="error-state__msg">{gumroadError}</div>
+              <button className="error-state__btn" onClick={fetchGumroad}>Retry</button>
+            </div>
+          )}
+          {printifyError && activeTab === "dashboard" && (
+            <div className="error-state" style={{ marginTop: "1rem" }}>
+              <div className="error-state__icon">⚠️</div>
+              <div className="error-state__title">Printify Connection Error</div>
+              <div className="error-state__msg">{printifyError}</div>
+              <button className="error-state__btn" onClick={fetchPrintify}>Retry</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  STYLES
+//  CSS
 // ════════════════════════════════════════════════════════════════════
-const s: Record<string, React.CSSProperties> = {
-  // Login
-  loginPage: {
-    minHeight: "100vh",
-    background: "#08050F",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "40px 20px",
-    fontFamily: "'Inter', -apple-system, sans-serif",
-  },
-  loginCard: {
-    background: "linear-gradient(145deg, #140E24, #0E0A1A)",
-    border: "1px solid #261840",
-    borderRadius: 16,
-    padding: "48px 40px",
-    maxWidth: 400,
-    width: "100%",
-    textAlign: "center" as const,
-  },
-  loginTitle: {
-    fontFamily: "'Playfair Display', Georgia, serif",
-    fontSize: "1.8rem",
-    fontWeight: 700,
-    color: "#F0EDE8",
-    marginBottom: 8,
-  },
-  loginSubtitle: {
-    fontSize: "0.8rem",
-    letterSpacing: "0.15em",
-    textTransform: "uppercase" as const,
-    color: "#B87333",
-    marginBottom: 32,
-  },
-  input: {
-    background: "#08050F",
-    border: "1px solid #261840",
-    borderRadius: 8,
-    padding: "14px 16px",
-    color: "#F0EDE8",
-    fontSize: "1rem",
-    outline: "none",
-    transition: "border-color 0.2s",
-    fontFamily: "inherit",
-  },
-  btnCopper: {
-    background: "linear-gradient(135deg, #B87333, #D4944A)",
-    border: "none",
-    borderRadius: 8,
-    padding: "16px 32px",
-    color: "#fff",
-    fontSize: "1rem",
-    fontWeight: 700,
-    letterSpacing: "0.05em",
-    textTransform: "uppercase" as const,
-    cursor: "pointer",
-    transition: "all 0.2s",
-    fontFamily: "inherit",
-  },
-  errorText: {
-    color: "#f87171",
-    fontSize: "0.85rem",
-    marginTop: 12,
-    textAlign: "center" as const,
-  },
+const cssReset = `
+  .hh-admin {
+    --bg-primary: #0b0f1a;
+    --bg-card: #141928;
+    --bg-card-alt: #1a2035;
+    --bg-hover: #1e2745;
+    --border: rgba(255,255,255,0.06);
+    --border-focus: rgba(184,115,51,0.4);
+    --text-primary: #e8eaf0;
+    --text-secondary: #8b95b0;
+    --text-muted: #5a6380;
+    --accent-copper: #B87333;
+    --accent-copper-light: #D4956B;
+    --accent-green: #10b981;
+    --accent-gold: #f59e0b;
+    --accent-red: #ef4444;
+    --accent-blue: #3b82f6;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
 
-  // Glass card
-  glassCard: {
-    background: "rgba(14, 10, 26, 0.7)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 14,
-    padding: 22,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)",
-    transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-  },
-  sectionTitle: {
-    fontFamily: "'Playfair Display', Georgia, serif",
-    fontSize: 16,
-    fontWeight: 600,
-    color: "#F0EDE8",
-    marginBottom: 16,
-  },
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
 
-  // Table
-  th: {
-    textAlign: "left" as const,
-    padding: "14px 16px",
-    fontSize: 10.5,
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.06em",
-    color: "#9088A8",
-    fontWeight: 600,
-    background: "rgba(255,255,255,0.02)",
-    borderBottom: "1px solid rgba(255,255,255,0.06)",
-    whiteSpace: "nowrap" as const,
-  },
-  td: {
-    padding: "13px 16px",
-    borderBottom: "1px solid rgba(255,255,255,0.04)",
-    color: "#CBD5E1",
-    fontSize: 13.5,
-  },
+  .hh-admin * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  // Badges
-  badge: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 5,
-    padding: "4px 12px",
-    borderRadius: 20,
-    fontSize: 11,
-    fontWeight: 600,
-    whiteSpace: "nowrap" as const,
-  },
-  badgeGreen: {
-    background: "rgba(16, 185, 129, 0.12)",
-    color: "#10B981",
-  },
-  badgeBlue: {
-    background: "rgba(59, 130, 246, 0.12)",
-    color: "#3B82F6",
-  },
-  badgeAmber: {
-    background: "rgba(245, 158, 11, 0.12)",
-    color: "#F59E0B",
-  },
-  badgeMuted: {
-    background: "rgba(144, 136, 168, 0.12)",
-    color: "#9088A8",
-  },
+  /* ── Login Gate ── */
+  #login-gate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    padding: 2rem;
+  }
+  .login-form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 360px; }
+  .login-form input {
+    background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 0.85rem 1.25rem; border-radius: var(--radius); font-size: 1rem; text-align: center;
+    outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif;
+  }
+  .login-form input:focus { border-color: var(--accent-copper); box-shadow: 0 0 0 3px rgba(184,115,51,0.15); }
+  .login-form input::placeholder { color: var(--text-muted); }
+  .login-btn {
+    background: var(--accent-copper);
+    color: white; border: none;
+    padding: 0.85rem 2.5rem; border-radius: var(--radius);
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; font-family: 'Inter', sans-serif; width: 100%;
+  }
+  .login-btn:hover { background: #a0632a; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(184,115,51,0.3); }
+  .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .login-btn--google {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .login-btn--google:hover { background: var(--bg-hover); border-color: var(--border-focus); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .login-divider { display: flex; align-items: center; gap: 1rem; color: var(--text-muted); font-size: 0.8rem; }
+  .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .login-form .error { color: var(--accent-red); font-size: 0.8rem; min-height: 1.2em; text-align: center; }
 
-  // Testimonial recorder styles (preserved)
-  tagline: {
-    fontSize: "0.7rem",
-    letterSpacing: "0.2em",
-    textTransform: "uppercase" as const,
-    color: "#B87333",
-    marginBottom: 8,
-    textAlign: "center" as const,
-  },
-  recordBtn: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 10,
-    background: "rgba(220, 38, 38, 0.15)",
-    border: "2px solid #dc2626",
-    borderRadius: 40,
-    padding: "14px 28px",
-    color: "#F0EDE8",
-    fontSize: "1rem",
-    fontWeight: 700,
-    cursor: "pointer",
-    transition: "all 0.2s",
-    fontFamily: "inherit",
-  },
-  recordDot: {
-    width: 14,
-    height: 14,
-    borderRadius: "50%",
-    background: "#dc2626",
-    display: "inline-block",
-    animation: "pulseRecord 1.5s ease-in-out infinite",
-  },
-  stopBtn: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 10,
-    background: "rgba(220, 38, 38, 0.25)",
-    border: "2px solid #dc2626",
-    borderRadius: 40,
-    padding: "14px 28px",
-    color: "#F0EDE8",
-    fontSize: "1rem",
-    fontWeight: 700,
-    cursor: "pointer",
-    transition: "all 0.2s",
-    boxShadow: "0 0 20px rgba(220, 38, 38, 0.3)",
-    fontFamily: "inherit",
-  },
-  stopSquare: {
-    width: 14,
-    height: 14,
-    borderRadius: 3,
-    background: "#dc2626",
-    display: "inline-block",
-  },
-  liveDot: {
-    width: 10,
-    height: 10,
-    borderRadius: "50%",
-    background: "#dc2626",
-    display: "inline-block",
-    animation: "pulseRecord 1s ease-in-out infinite",
-  },
-  previewSection: {
-    background: "rgba(8, 5, 15, 0.6)",
-    border: "1px solid #261840",
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 24,
-    textAlign: "center" as const,
-  },
-  btnGhost: {
-    background: "transparent",
-    border: "1px solid #261840",
-    borderRadius: 6,
-    padding: "8px 16px",
-    color: "#9088A8",
-    fontSize: "0.8rem",
-    cursor: "pointer",
-    transition: "all 0.2s",
-    fontFamily: "inherit",
-  },
-  label: {
-    display: "block",
-    fontSize: "0.8rem",
-    letterSpacing: "0.1em",
-    textTransform: "uppercase" as const,
-    color: "#9088A8",
-    marginBottom: 8,
-    fontWeight: 600,
-  },
-  textarea: {
-    width: "100%",
-    background: "#08050F",
-    border: "1px solid #261840",
-    borderRadius: 8,
-    padding: "14px 16px",
-    color: "#F0EDE8",
-    fontSize: "0.95rem",
-    lineHeight: 1.6,
-    resize: "vertical" as const,
-    outline: "none",
-    fontFamily: "inherit",
-    transition: "border-color 0.2s",
-    boxSizing: "border-box" as const,
-  },
-  successBanner: {
-    display: "flex",
-    alignItems: "center",
-    gap: 16,
-    background: "rgba(34, 197, 94, 0.08)",
-    border: "1px solid rgba(34, 197, 94, 0.3)",
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 28,
-    color: "#F0EDE8",
-  },
-};
+  /* ── Access Denied ── */
+  #access-denied {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    padding: 2rem;
+  }
+  #access-denied .icon { font-size: 4rem; margin-bottom: 1rem; }
+  #access-denied h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  #access-denied p { color: var(--text-secondary); margin-bottom: 1.5rem; max-width: 400px; }
+
+  /* ── Top Bar ── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .topbar::before {
+    content: ''; position: absolute;
+    left: 1.5rem; top: 50%; transform: translateY(-50%);
+    width: 60px; height: 60px;
+    background: radial-gradient(circle, rgba(184,115,51,0.25) 0%, transparent 70%);
+    pointer-events: none; z-index: -1;
+  }
+  .topbar__left { display: flex; align-items: center; gap: 0.75rem; }
+  .topbar__left h1 { font-size: 1.1rem; font-weight: 700; }
+  .topbar__badge {
+    color: var(--accent-copper); font-size: 0.7rem; font-weight: 700;
+    background: rgba(184,115,51,0.15); padding: 0.15rem 0.6rem; border-radius: 50px;
+  }
+  .topbar__right { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+  .topbar__timer { color: var(--text-muted); font-size: 0.7rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .topbar__avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-copper), #D4944A);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .topbar__user { color: var(--text-secondary); font-size: 0.8rem; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .topbar__logout {
+    background: none; border: 1px solid var(--border); color: var(--text-secondary);
+    padding: 0.4rem 1rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.8rem;
+    transition: all 0.2s; font-family: 'Inter', sans-serif;
+  }
+  .topbar__logout:hover { border-color: var(--accent-red); color: var(--accent-red); }
+
+  /* ── Tab Navigation ── */
+  .tabs {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    padding: 0 2rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 1rem 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.85rem; font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text-secondary); }
+  .tab.active { color: var(--accent-copper); border-bottom-color: var(--accent-copper); }
+
+  /* ── Content ── */
+  .content { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+  .panel { display: none; animation: fadeIn 0.3s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Summary Cards ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  .summary-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem;
+    transition: all 0.25s ease; position: relative; overflow: hidden;
+  }
+  .summary-card::after {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-copper), transparent);
+    opacity: 0; transition: opacity 0.25s ease;
+  }
+  .summary-card:hover { border-color: var(--border-focus); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .summary-card:hover::after { opacity: 1; }
+  .summary-card__icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .summary-card__label { color: var(--text-muted); font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .summary-card__value { font-size: 1.8rem; font-weight: 800; }
+  .summary-card__value.green { color: var(--accent-green); }
+  .summary-card__value.gold { color: var(--accent-gold); }
+  .summary-card__value.copper { color: var(--accent-copper); }
+  .summary-card__value.red { color: var(--accent-red); }
+  .summary-card__value.blue { color: var(--accent-blue); }
+  .summary-card__note { color: var(--text-muted); font-size: 0.7rem; margin-top: 0.35rem; }
+
+  /* ── Section Headers ── */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .section-header h2 { font-size: 1.15rem; font-weight: 700; }
+  .section-header span { color: var(--text-muted); font-size: 0.8rem; }
+
+  /* ── Refresh Bar ── */
+  .refresh-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem; padding: 0.75rem 1rem;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  }
+  .refresh-bar__time { color: var(--text-muted); font-size: 0.75rem; }
+  .refresh-bar__btn {
+    background: rgba(184,115,51,0.15); color: var(--accent-copper);
+    border: 1px solid rgba(184,115,51,0.2);
+    padding: 0.4rem 1rem; border-radius: var(--radius-sm);
+    cursor: pointer; font-size: 0.75rem; font-weight: 600;
+    font-family: 'Inter', sans-serif; transition: all 0.2s;
+  }
+  .refresh-bar__btn:hover { background: rgba(184,115,51,0.25); border-color: var(--accent-copper); }
+  .refresh-bar__btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── Tables ── */
+  .table-wrap {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-bottom: 2rem;
+  }
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; padding: 0.85rem 1rem;
+    font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-muted); background: var(--bg-card-alt);
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody td { padding: 0.85rem 1rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background 0.15s ease; }
+  tbody tr:hover { background: var(--bg-hover); }
+  .amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .amount.positive { color: var(--accent-green); }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-block; padding: 0.2rem 0.6rem;
+    border-radius: 50px; font-size: 0.7rem;
+    font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.03em; white-space: nowrap;
+  }
+  .badge--fulfilled { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+  .badge--shipped { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+  .badge--pending { background: rgba(245,158,11,0.15); color: var(--accent-gold); }
+  .badge--refunded { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+  .badge--error { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+  .badge--gumroad { background: rgba(255,144,232,0.12); color: #ff90e8; }
+  .badge--printify { background: rgba(59,130,246,0.12); color: var(--accent-blue); }
+  .badge--in-progress { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+  .badge--not-started { background: rgba(90,99,128,0.2); color: var(--text-muted); }
+
+  /* ── Progress Bars ── */
+  .progress-bar {
+    background: var(--bg-card-alt); border-radius: 50px;
+    height: 8px; width: 100%; overflow: hidden;
+  }
+  .progress-bar__fill {
+    height: 100%; border-radius: 50px;
+    background: linear-gradient(90deg, var(--accent-copper), var(--accent-copper-light));
+    transition: width 0.6s ease;
+  }
+
+  /* ── Product Grid ── */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  .product-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem;
+    transition: all 0.25s ease; text-align: center;
+  }
+  .product-card:hover { border-color: var(--border-focus); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .product-card img {
+    width: 100%; max-width: 140px; height: 140px;
+    object-fit: contain; border-radius: var(--radius-sm);
+    margin-bottom: 0.75rem; background: rgba(255,255,255,0.03);
+  }
+  .product-card__name { font-weight: 600; font-size: 0.85rem; margin-bottom: 0.35rem; }
+  .product-card__meta { color: var(--text-muted); font-size: 0.7rem; }
+  .product-card__link {
+    display: inline-block; margin-top: 0.5rem;
+    font-size: 0.7rem; color: var(--accent-copper);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .product-card__link:hover { color: var(--accent-copper-light); text-decoration: underline; }
+
+  /* ── Recommendation Card (Cliff) ── */
+  .rec-card {
+    background: linear-gradient(135deg, rgba(184,115,51,0.1), rgba(59,130,246,0.1));
+    border: 1px solid var(--border-focus);
+    border-radius: var(--radius); padding: 1.5rem;
+    margin-top: 2rem;
+  }
+  .rec-card h3 { font-size: 1rem; margin-bottom: 0.75rem; color: var(--accent-copper-light); }
+  .rec-card p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6; margin-bottom: 0.75rem; }
+
+  /* ── Skeleton Loader ── */
+  .skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  .skeleton-card {
+    height: 110px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); position: relative; overflow: hidden;
+  }
+  .skeleton-card::after {
+    content: ''; position: absolute;
+    top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(184,115,51,0.06), transparent);
+    animation: shimmer 1.8s infinite;
+  }
+  .skeleton-table {
+    height: 200px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); position: relative; overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  .skeleton-table::after {
+    content: ''; position: absolute;
+    top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(184,115,51,0.06), transparent);
+    animation: shimmer 1.8s infinite;
+  }
+  @keyframes shimmer { to { left: 100%; } }
+
+  /* ── Empty State ── */
+  .empty-state { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; }
+  .empty-state__icon { font-size: 2rem; margin-bottom: 0.75rem; }
+
+  /* ── Error State ── */
+  .error-state {
+    text-align: center; padding: 2rem;
+    background: var(--bg-card); border: 1px solid rgba(239,68,68,0.2);
+    border-radius: var(--radius); margin-bottom: 2rem;
+  }
+  .error-state__icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .error-state__title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .error-state__msg { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 1rem; }
+  .error-state__btn {
+    background: var(--accent-red); color: #fff; border: none;
+    padding: 0.5rem 1.25rem; border-radius: var(--radius-sm);
+    cursor: pointer; font-size: 0.8rem; font-weight: 600;
+    font-family: 'Inter', sans-serif; transition: all 0.2s;
+  }
+  .error-state__btn:hover { background: #dc2626; transform: translateY(-1px); }
+
+  /* ── Seed Banner ── */
+  .seed-banner {
+    background: linear-gradient(135deg, rgba(184,115,51,0.1), rgba(59,130,246,0.1));
+    border: 1px solid var(--border-focus);
+    border-radius: var(--radius); padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+
+  /* ── Spinner ── */
+  .spinner {
+    border: 3px solid var(--border);
+    border-top-color: var(--accent-copper);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .topbar { padding: 0.75rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .topbar__right { gap: 0.5rem; }
+    .topbar__user { display: none; }
+    .topbar__left h1 { font-size: 0.9rem; }
+    .tabs { padding: 0 0.5rem; }
+    .tab { padding: 0.75rem 1rem; font-size: 0.8rem; }
+    .content { padding: 1rem; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .skeleton-grid { grid-template-columns: repeat(2, 1fr); }
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+    table { font-size: 0.8rem; }
+    thead th, tbody td { padding: 0.6rem 0.5rem; }
+    .refresh-bar { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+  @media (max-width: 480px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .summary-card { padding: 1rem; }
+    .summary-card__value { font-size: 1.4rem; }
+    .product-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  }
+`;

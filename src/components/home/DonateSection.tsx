@@ -117,7 +117,7 @@ export default function DonateSection() {
 
           {/* Cash App CTA Button */}
           <a
-            href="https://hwlldmn.gumroad.com/l/nqcgg"
+            href="https://hoodhymn.gumroad.com/l/ibtlcd"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-brand fade-in-up fade-in-up-delay-3"

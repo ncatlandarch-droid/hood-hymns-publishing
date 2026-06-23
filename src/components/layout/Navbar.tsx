@@ -126,7 +126,7 @@ export default function Navbar() {
           ))}
           <LanguageSwitcher />
           <a
-            href="https://hwlldmn.gumroad.com/l/nqcgg"
+            href="https://hoodhymn.gumroad.com/l/ibtlcd"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -205,7 +205,7 @@ export default function Navbar() {
           ))}
           <LanguageSwitcher />
           <a
-            href="https://hwlldmn.gumroad.com/l/nqcgg"
+            href="https://hoodhymn.gumroad.com/l/ibtlcd"
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setMobileOpen(false)}
